@@ -1,10 +1,11 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
-  "routes": [
+  "outputDirectory": "dist/ng-ecommerce/browser",
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/api/index.js"
+      "source": "/(.*)",
+      "destination": "/"
     }
   ]
 }

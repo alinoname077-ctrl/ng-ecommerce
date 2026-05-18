@@ -35,6 +35,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/order-success/order-success'),
 },
 
+
 ];
-  
 
