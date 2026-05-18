@@ -10,7 +10,8 @@ import express from 'express';
 const app = express();
 
 const angularApp = new AngularNodeAppEngine({
-  allowedHosts: ['ng-ecommerce.onrender.com']
+  allowedHosts: ['*'],
+  trustProxyHeaders: true,
 });
 
 app.use(
