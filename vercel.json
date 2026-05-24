@@ -1,11 +1,17 @@
 {
-  "version": 2,
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "angular",
   "buildCommand": "npm run build",
   "outputDirectory": "dist/ng-ecommerce/browser",
+  "functions": {
+    "api/ssr.js": {
+      "includeFiles": "dist/ng-ecommerce/**"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/"
+      "destination": "/api/ssr.js"
     }
   ]
 }

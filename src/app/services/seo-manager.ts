@@ -54,8 +54,8 @@ export class SeoManager {
 
     const fullUrl = origin + (this.router.url || '');
 
-    // 🔗 Canonical (только в браузере!)
-    if (isPlatformBrowser(this.platformId)) {
+    // Canonical must be present in SSR HTML so crawlers can see it.
+    if (fullUrl) {
       let canonicalLink = this.document.querySelector(
         "link[rel='canonical']"
       ) as HTMLLinkElement | null;

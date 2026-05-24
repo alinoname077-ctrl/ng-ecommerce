@@ -28,5 +28,9 @@ export const serverRoutes: ServerRoute[] = [
   {
     path: 'order-success',
     renderMode: RenderMode.Server
+  },
+  {
+    path: '**',
+    renderMode: RenderMode.Server
   }
 ];
