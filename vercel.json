@@ -1,5 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "angular",
-  "buildCommand": "npm run build"
+  "framework": null,
+  "buildCommand": "npm run build",
+  "functions": {
+    "api/ssr.js": {
+      "runtime": "nodejs20.x",
+      "includeFiles": "dist/ng-ecommerce/**"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/ssr.js"
+    }
+  ]
 }
