@@ -13,9 +13,13 @@ const app = express();
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 
+const categories = ['all', 'automation', 'drives', 'pumps', 'valves', 'heat-exchangers'];
+const productIds = Array.from({ length: 20 }, (_, index) => `p-${index + 1}`);
+
 const allowedHosts = [
   'localhost',
   '127.0.0.1',
+  '*.vercel.app',
   process.env['VERCEL_URL'],
   process.env['VERCEL_BRANCH_URL'],
   process.env['VERCEL_PROJECT_PRODUCTION_URL'],
@@ -27,7 +31,51 @@ const allowedHosts = [
 
 const angularApp = new AngularNodeAppEngine({
   allowedHosts,
-  trustProxyHeaders: ['x-forwarded-host', 'x-forwarded-proto'],
+  trustProxyHeaders: true,
+});
+
+function getPublicOrigin(req: express.Request): string {
+  const protocol = (req.get('x-forwarded-proto') || req.protocol || 'https').split(',')[0].trim();
+  const host = (req.get('x-forwarded-host') || req.get('host') || '').split(',')[0].trim();
+
+  return host ? `${protocol}://${host}` : 'https://ng-ecommerce.vercel.app';
+}
+
+app.get('/robots.txt', (req, res) => {
+  const origin = getPublicOrigin(req);
+
+  res.type('text/plain').send(
+    [
+      'User-agent: *',
+      'Allow: /',
+      '',
+      `Sitemap: ${origin}/sitemap.xml`,
+      '',
+    ].join('\n'),
+  );
+});
+
+app.get('/sitemap.xml', (req, res) => {
+  const origin = getPublicOrigin(req);
+  const today = new Date().toISOString().slice(0, 10);
+  const urls = [
+    `${origin}/`,
+    ...categories.map((category) => `${origin}/products/${category}`),
+    ...productIds.map((productId) => `${origin}/product/${productId}`),
+  ];
+
+  res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls
+  .map(
+    (url) => `  <url>
+    <loc>${url}</loc>
+    <lastmod>${today}</lastmod>
+  </url>`,
+  )
+  .join('\n')}
+</urlset>
+`);
 });
 
 app.use(

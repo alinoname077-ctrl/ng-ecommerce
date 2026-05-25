@@ -22,6 +22,7 @@ export class SeoManager {
   private readonly siteName = 'Crocus Trade';
   private readonly defaultImage =
     'https://img01.flagma-tm.com/photo/zakupki-i-soprovozhdenie-sdelok-v-es-ot-imeni-vashey-kompanii-1760331_medium.jpg';
+  private readonly fallbackOrigin = 'https://ng-ecommerce.vercel.app';
 
   updateSeoTags(seoData: SeoData) {
     const title = seoData.title || this.siteName;
@@ -31,23 +32,23 @@ export class SeoManager {
     this.title.setTitle(`${title} | ${this.siteName}`);
     this.meta.updateTag({ name: 'description', content: description });
 
-    // 🌐 Определяем origin (SSR + browser)
-    let origin = '';
+    let origin = this.fallbackOrigin;
 
     if (this.request) {
       const headers = this.request.headers as Headers | undefined;
 
-      const protocol =
-        (headers?.get('x-forwarded-proto') ||
-          this.request.url.split(':')[0] ||
-          'http') + '://';
+      const protocol = (headers?.get('x-forwarded-proto') || this.request.url.split(':')[0] || 'https')
+        .split(',')[0]
+        .trim();
 
       const host =
         headers?.get('x-forwarded-host') ||
         headers?.get('host') ||
         '';
 
-      origin = host ? `${protocol}${host}` : '';
+      const publicHost = host.split(',')[0].trim();
+
+      origin = publicHost ? `${protocol}://${publicHost}` : origin;
     } else if (isPlatformBrowser(this.platformId)) {
       origin = window.location.origin;
     }
@@ -81,5 +82,50 @@ export class SeoManager {
     this.meta.updateTag({ property: 'og:image:width', content: '1200' });
     this.meta.updateTag({ property: 'og:image:height', content: '630' });
     this.meta.updateTag({ property: 'og:locale', content: 'en_US' });
+
+    this.updateStructuredData(seoData, fullUrl, imageUrl);
+  }
+
+  private updateStructuredData(seoData: SeoData, url: string, imageUrl: string) {
+    const id = 'seo-structured-data';
+    const existing = this.document.getElementById(id);
+    existing?.remove();
+
+    const data =
+      seoData.type === 'product'
+        ? {
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: seoData.title,
+            description: seoData.description,
+            image: imageUrl,
+            url,
+            brand: {
+              '@type': 'Brand',
+              name: 'Crocus Trade',
+            },
+            offers: {
+              '@type': 'Offer',
+              priceCurrency: seoData.currency || 'USD',
+              price: seoData.price?.toString(),
+              availability: seoData.inStock
+                ? 'https://schema.org/InStock'
+                : 'https://schema.org/OutOfStock',
+              url,
+            },
+          }
+        : {
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: this.siteName,
+            url,
+            description: seoData.description,
+          };
+
+    const script = this.document.createElement('script');
+    script.id = id;
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(data);
+    this.document.head.appendChild(script);
   }
 }

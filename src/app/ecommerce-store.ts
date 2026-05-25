@@ -42,7 +42,8 @@ export const EcommerceStore = signalStore(
       {
         id: 'p-1',
         name: 'Ridan 21RT0206R Compact',
-        description: 'Терморегулятор для систем отопления и водоснабжения.',
+        description:
+          'Ridan 21RT0206R Compact - компактный электронный терморегулятор для автоматического контроля температуры в системах отопления, теплых полов и водоснабжения. Подходит для точной настройки инженерных систем и поддержания стабильного режима работы оборудования.',
         price: 299.99,
         imageUrl: 'https://ridan.kz/open-files/files/1824/1824339-21RT0206R+Compact.png',
         rating: 4.7,
@@ -374,6 +375,9 @@ closeCategories: () => {
           description: product.description,
           image: product.imageUrl,
           type: 'product',
+          price: product.price,
+          currency: 'USD',
+          inStock: product.inStock,
         });
       }),
       addToWishlist: (product: Product) => {

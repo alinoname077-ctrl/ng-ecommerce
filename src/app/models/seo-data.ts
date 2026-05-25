@@ -3,5 +3,7 @@ export interface SeoData {
   description: string;
   image?: string;
   type?: 'website'|'product';
-  
+  price?: number;
+  currency?: string;
+  inStock?: boolean;
 }
