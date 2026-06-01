@@ -22,7 +22,7 @@ export class SeoManager {
   private readonly siteName = 'Crocus Trade';
   private readonly defaultImage =
     'https://img01.flagma-tm.com/photo/zakupki-i-soprovozhdenie-sdelok-v-es-ot-imeni-vashey-kompanii-1760331_medium.jpg';
-  private readonly fallbackOrigin = 'https://ng-ecommerce.vercel.app';
+  private readonly primaryOrigin = 'https://ng-ecommerce-swart.vercel.app';
 
   updateSeoTags(seoData: SeoData) {
     const title = seoData.title || this.siteName;
@@ -32,7 +32,7 @@ export class SeoManager {
     this.title.setTitle(`${title} | ${this.siteName}`);
     this.meta.updateTag({ name: 'description', content: description });
 
-    let origin = this.fallbackOrigin;
+    let origin = this.primaryOrigin;
 
     if (this.request) {
       const headers = this.request.headers as Headers | undefined;
@@ -47,10 +47,19 @@ export class SeoManager {
         '';
 
       const publicHost = host.split(',')[0].trim();
+      const publicHostname = publicHost.split(':')[0];
 
-      origin = publicHost ? `${protocol}://${publicHost}` : origin;
+      origin =
+        publicHostname === 'localhost' || publicHostname === '127.0.0.1'
+          ? `${protocol}://${publicHost}`
+          : this.primaryOrigin;
     } else if (isPlatformBrowser(this.platformId)) {
-      origin = window.location.origin;
+      const browserHostname = window.location.hostname;
+
+      origin =
+        browserHostname === 'localhost' || browserHostname === '127.0.0.1'
+          ? window.location.origin
+          : this.primaryOrigin;
     }
 
     const fullUrl = origin + (this.router.url || '');
