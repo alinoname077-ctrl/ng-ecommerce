@@ -54,14 +54,14 @@ export const EcommerceStore = signalStore(
       },
       {
         id: 'p-2',
-        name: 'Danfoss VLT Micro Drive FC 51',
-        description: 'Компактный преобразователь частоты для электродвигателей.',
+        name: 'Ридан 013G9000R — Термостатический элемент TR 9000 Ultra',
+        description: 'Термостатический элемент Ридан 013G9000R предназначен для поддержания комфортной температуры в помещениях с водяным отоплением. Модель оснащена встроенным жидкостным датчиком и совместима с клапанами типа RA. Устройство автоматически реагирует на изменение температуры воздуха, помогая снизить перерасход тепловой энергии и повысить комфорт эксплуатации системы отопления.',
         price: 499.99,
-        imageUrl: 'https://drives.ru/upload/iblock/0d7/fc51.jpg',
+        imageUrl: 'https://ridan.ru/files/1659/1659598-9000_0.png',
         rating: 4.8,
         reviewCount: 9,
         inStock: true,
-        category: 'drives',
+         category: 'automation',
         reviews: [],
       },
       {
