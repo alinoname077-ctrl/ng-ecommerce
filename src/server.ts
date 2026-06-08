@@ -15,7 +15,7 @@ const browserDistFolder = resolve(serverDistFolder, '../browser');
 
 const categories = ['all', 'automation', 'drives', 'pumps', 'valves', 'heat-exchangers'];
 const productIds = Array.from({ length: 20 }, (_, index) => `p-${index + 1}`);
-const primaryOrigin = 'https://ng-ecommerce-swart.vercel.app';
+const primaryOrigin = 'https://ng-ecommerce-sigma.vercel.app';
 
 const allowedHosts = [
   'localhost',

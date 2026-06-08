@@ -22,7 +22,7 @@ export class SeoManager {
   private readonly siteName = 'Crocus Trade';
   private readonly defaultImage =
     'https://img01.flagma-tm.com/photo/zakupki-i-soprovozhdenie-sdelok-v-es-ot-imeni-vashey-kompanii-1760331_medium.jpg';
-  private readonly primaryOrigin = 'https://ng-ecommerce-swart.vercel.app';
+  private readonly primaryOrigin = 'https://ng-ecommerce-sigma.vercel.app';
 
   updateSeoTags(seoData: SeoData) {
     const title = seoData.title || this.siteName;
