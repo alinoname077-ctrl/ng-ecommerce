@@ -6,10 +6,19 @@ import {
 } from '@angular/ssr/node';
 
 import express from 'express';
+import { join } from 'path';
+
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const app = express();
+
+// 👇 ДО Angular SSR handler
+app.get('/google87342c1a9cd54865.html', (req, res) => {
+  res.sendFile(
+    join(process.cwd(), 'dist/ng-ecommerce/browser/google87342c1a9cd54865.html')
+  );
+});
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 
