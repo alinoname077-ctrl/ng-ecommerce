@@ -13,14 +13,12 @@ import { fileURLToPath } from 'node:url';
 
 const app = express();
 
-// 👇 ДО Angular SSR handler
-app.get('/google87342c1a9cd54865.html', (req, res) => {
-  res.sendFile(
-    join(process.cwd(), 'dist/ng-ecommerce/browser/google87342c1a9cd54865.html')
-  );
-});
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
+
+app.get('/google87342c1a9cd54865.html', (req, res) => {
+  res.sendFile(join(browserDistFolder, 'google87342c1a9cd54865.html'));
+});
 
 const categories = ['all', 'automation', 'drives', 'pumps', 'valves', 'heat-exchangers'];
 const productIds = Array.from({ length: 20 }, (_, index) => `p-${index + 1}`);
