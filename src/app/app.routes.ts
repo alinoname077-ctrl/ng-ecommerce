@@ -13,7 +13,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/products-grid/products-grid')
      },
 {
-  path: 'product/:productId',
+  path: 'product/:slug',
   loadComponent: () => import('./pages/view-product-detail/view-product-detail')
   
 },

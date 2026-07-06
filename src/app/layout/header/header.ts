@@ -19,7 +19,7 @@ import { NgIf } from '@angular/common';
           class="logo"
           (click)="store.resetFilters()"
         >
-          Crocus Trade
+          E-commerce
         </a>
         <button
   class="px-3 py-1 border rounded"

@@ -41,6 +41,7 @@ export const EcommerceStore = signalStore(
     products: [
       {
         id: 'p-1',
+        slug: 'ridan-21rt0206r-compact',
         name: 'Ridan 21RT0206R Compact',
         description:
           'Ridan 21RT0206R Compact - компактный электронный терморегулятор для автоматического контроля температуры в системах отопления, теплых полов и водоснабжения. Подходит для точной настройки инженерных систем и поддержания стабильного режима работы оборудования.',
@@ -54,6 +55,7 @@ export const EcommerceStore = signalStore(
       },
       {
         id: 'p-2',
+        slug: 'ridan-013g9000r-tr-9000-ultra',
         name: 'Ридан 013G9000R — Термостатический элемент TR 9000 Ultra',
         description: 'Термостатический элемент Ридан 013G9000R предназначен для поддержания комфортной температуры в помещениях с водяным отоплением. Модель оснащена встроенным жидкостным датчиком и совместима с клапанами типа RA. Устройство автоматически реагирует на изменение температуры воздуха, помогая снизить перерасход тепловой энергии и повысить комфорт эксплуатации системы отопления.',
         price: 499.99,
@@ -61,221 +63,18 @@ export const EcommerceStore = signalStore(
         rating: 4.8,
         reviewCount: 9,
         inStock: true,
-         category: 'automation',
+         category: 'Drives',
         reviews: [],
       },
       {
         id: 'p-3',
+        slug: 'wilo-star-rs-25-6',
         name: 'Wilo Star-RS 25/6',
         description: 'Циркуляционный насос для отопительных систем.',
         price: 359.99,
         imageUrl: 'https://wilo.com/content/dam/wilo/images/products/star-rs.jpg',
         rating: 4.6,
         reviewCount: 14,
-        inStock: true,
-        category: 'pumps',
-        reviews: [],
-      },
-      {
-        id: 'p-4',
-        name: 'Danfoss AMV 30',
-        description: 'Электропривод для регулирующих клапанов.',
-        price: 279.99,
-        imageUrl: 'https://assets.danfoss.com/images/amv30.jpg',
-        rating: 4.5,
-        reviewCount: 7,
-        inStock: true,
-        category: 'valves',
-        reviews: [],
-      },
-      {
-        id: 'p-5',
-        name: 'Alfa Laval M3',
-        description: 'Пластинчатый теплообменник для отопительных систем.',
-        price: 699.99,
-        imageUrl: 'https://alfalaval.com/images/m3.jpg',
-        rating: 4.9,
-        reviewCount: 5,
-        inStock: true,
-        category: 'heat-exchangers',
-        reviews: [],
-      },
-      {
-        id: 'p-6',
-        name: 'Honeywell V4043',
-        description: 'Двухходовой зональный клапан.',
-        price: 189.99,
-        imageUrl: 'https://customer.honeywell.com/resources/v4043.jpg',
-        rating: 4.4,
-        reviewCount: 11,
-        inStock: true,
-        category: 'valves',
-        reviews: [],
-      },
-      {
-        id: 'p-7',
-        name: 'Danfoss KP35',
-        description: 'Реле давления для систем контроля.',
-        price: 149.99,
-        imageUrl: 'https://assets.danfoss.com/images/kp35.jpg',
-        rating: 4.7,
-        reviewCount: 8,
-        inStock: true,
-        category: 'automation',
-        reviews: [],
-      },
-      {
-        id: 'p-8',
-        name: 'Wilo Helix V 1602',
-        description: 'Вертикальный многоступенчатый насос.',
-        price: 899.99,
-        imageUrl: 'https://wilo.com/content/dam/wilo/images/helix-v.jpg',
-        rating: 4.8,
-        reviewCount: 4,
-        inStock: true,
-        category: 'pumps',
-        reviews: [],
-      },
-      {
-        id: 'p-9',
-        name: 'Danfoss AVTB',
-        description: 'Автоматический терморегулятор температуры.',
-        price: 229.99,
-        imageUrl: 'https://assets.danfoss.com/images/avtb.jpg',
-        rating: 4.6,
-        reviewCount: 6,
-        inStock: true,
-        category: 'automation',
-        reviews: [],
-      },
-      {
-        id: 'p-10',
-        name: 'Wilo TOP-S 30/10',
-        description: 'Насос для циркуляции воды в отопительных системах.',
-        price: 649.99,
-        imageUrl: 'https://wilo.com/content/dam/wilo/images/top-s.jpg',
-        rating: 4.7,
-        reviewCount: 5,
-        inStock: true,
-        category: 'pumps',
-        reviews: [],
-      },
-      {
-        id: 'p-11',
-        name: 'Danfoss EV220B',
-        description: 'Электромагнитный клапан для воды и воздуха.',
-        price: 189.99,
-        imageUrl: 'https://assets.danfoss.com/images/ev220b.jpg',
-        rating: 4.5,
-        reviewCount: 7,
-        inStock: true,
-        category: 'valves',
-        reviews: [],
-      },
-      {
-        id: 'p-12',
-        name: 'Honeywell VC4013',
-        description: 'Клапан с электроприводом для отопления.',
-        price: 219.99,
-        imageUrl: 'https://customer.honeywell.com/resources/vc4013.jpg',
-        rating: 4.4,
-        reviewCount: 6,
-        inStock: true,
-        category: 'valves',
-        reviews: [],
-      },
-      {
-        id: 'p-13',
-        name: 'Alfa Laval CB14',
-        description: 'Компактный паяный теплообменник.',
-        price: 549.99,
-        imageUrl: 'https://alfalaval.com/images/cb14.jpg',
-        rating: 4.8,
-        reviewCount: 3,
-        inStock: true,
-        category: 'heat-exchangers',
-        reviews: [],
-      },
-      {
-        id: 'p-14',
-        name: 'Danfoss FC 102',
-        description: 'Преобразователь частоты для HVAC систем.',
-        price: 1299.99,
-        imageUrl: 'https://assets.danfoss.com/images/fc102.jpg',
-        rating: 4.9,
-        reviewCount: 5,
-        inStock: true,
-        category: 'drives',
-        reviews: [],
-      },
-      {
-        id: 'p-15',
-        name: 'Wilo CronoLine IL',
-        description: 'Высокоэффективный насос для отопления.',
-        price: 1499.99,
-        imageUrl: 'https://wilo.com/content/dam/wilo/images/cronoline-il.jpg',
-        rating: 4.8,
-        reviewCount: 2,
-        inStock: true,
-        category: 'pumps',
-        reviews: [],
-      },
-      {
-        id: 'p-16',
-        name: 'Danfoss AB-QM',
-        description: 'Балансировочный и регулирующий клапан.',
-        price: 269.99,
-        imageUrl: 'https://assets.danfoss.com/images/ab-qm.jpg',
-        rating: 4.7,
-        reviewCount: 4,
-        inStock: true,
-        category: 'valves',
-        reviews: [],
-      },
-      {
-        id: 'p-17',
-        name: 'Honeywell T6373',
-        description: 'Комнатный термостат для отопительных систем.',
-        price: 99.99,
-        imageUrl: 'https://customer.honeywell.com/resources/t6373.jpg',
-        rating: 4.3,
-        reviewCount: 8,
-        inStock: true,
-        category: 'automation',
-        reviews: [],
-      },
-      {
-        id: 'p-18',
-        name: 'Alfa Laval CB52',
-        description: 'Паяный теплообменник для промышленных систем.',
-        price: 899.99,
-        imageUrl: 'https://alfalaval.com/images/cb52.jpg',
-        rating: 4.8,
-        reviewCount: 4,
-        inStock: true,
-        category: 'heat-exchangers',
-        reviews: [],
-      },
-      {
-        id: 'p-19',
-        name: 'Danfoss MBS 3000',
-        description: 'Датчик давления для промышленного применения.',
-        price: 159.99,
-        imageUrl: 'https://assets.danfoss.com/images/mbs3000.jpg',
-        rating: 4.5,
-        reviewCount: 6,
-        inStock: true,
-        category: 'automation',
-        reviews: [],
-      },
-      {
-        id: 'p-20',
-        name: 'Wilo Economy CO',
-        description: 'Установка повышения давления.',
-        price: 1799.99,
-        imageUrl: 'https://wilo.com/content/dam/wilo/images/economy-co.jpg',
-        rating: 4.9,
-        reviewCount: 3,
         inStock: true,
         category: 'pumps',
         reviews: [],
@@ -302,7 +101,9 @@ export const EcommerceStore = signalStore(
       const term = (search() || '').toLowerCase().trim();
 
       return products().filter((p) => {
-        const matchesCategory = category() === 'all' || p.category === category().toLowerCase();
+        const matchesCategory =
+  category() === 'all' ||
+  p.category.toLowerCase() === category().toLowerCase();
 
         const matchesSearch =
           !term || `${p.name} ${p.description} ${p.category}`.toLowerCase().includes(term);
@@ -415,7 +216,10 @@ closeCategories: () => {
         );
       },
       setItemQuantity(params: { productId: string; quantity: number }) {
-        const index = store.cartItems().findIndex((c) => c.product.id === params.productId);
+  const index = store.cartItems().findIndex(
+    (c) => c.product.id === params.productId
+  );
+        
         const updated = produce(store.cartItems(), (draft) => {
           draft[index].quantity = params.quantity;
         });
@@ -432,17 +236,22 @@ closeCategories: () => {
         patchState(store, { cartItems: updatedCartItems, wishlistItems: [] });
       },
       moveToWishlist: (product: Product) => {
-        const updatedCartItems = store.cartItems().filter((p) => p.product.id !== product.id);
-        const updatedWishlistItems = produce(store.wishlistItems(), (draft) => {
-          if (!draft.find((p) => p.id === product.id)) {
-            draft.push(product);
-          }
-        });
+      const updatedCartItems = store.cartItems().filter(
+  (p) => p.product.id !== product.id
+);
+
+const updatedWishlistItems = produce(store.wishlistItems(), (draft) => {
+  if (!draft.find((p) => p.id === product.id)) {
+    draft.push(product);
+  }
+});
         patchState(store, { cartItems: updatedCartItems, wishlistItems: updatedWishlistItems });
       },
       removeFromCart: (product: Product) => {
         patchState(store, {
-          cartItems: store.cartItems().filter((p) => p.product.id !== product.id),
+         cartItems: store.cartItems().filter(
+  (p) => p.product.id !== product.id
+),
         });
       },
 

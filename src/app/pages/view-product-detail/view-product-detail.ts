@@ -18,7 +18,7 @@ import { ViewReviews } from "./view-reviews/view-reviews";
         Continue Shopping
       </app-back-button>
 
-      @if (store.selectedProduct(); as product) {
+      @if (product(); as product) {
         <div class="flex gap-8 mb-8">
           <img 
             [src]="product.imageUrl" 
@@ -36,15 +36,24 @@ import { ViewReviews } from "./view-reviews/view-reviews";
   `,
 })
 export default class ViewProductDetail {
-  productId = input.required<string>();
+ slug = input.required<string>();
   store = inject(EcommerceStore);
+  product = computed(() =>
+    this.store.products().find((p) => p.slug === this.slug())
+  );
 
-  constructor() {
-    effect(() => {
-      this.store.setProductId(this.productId());
-      this.store.setProductSeoTags(this.store.selectedProduct());
-    });
-  }
+constructor() {
+  effect(() => {
+    const product = this.product();
+
+    if (!product) {
+      return;
+    }
+
+    this.store.setProductId(product.id);
+    this.store.setProductSeoTags(product);
+  });
+}
 
   backRoute = computed(() => `/products/${this.store.category()}`);
 }

@@ -2,6 +2,7 @@ import { UserReview } from "./user-review";
 
 export interface Product {
   id: string;
+  slug: string;
   name: string;
   description: string;
   price: number;
@@ -11,4 +12,5 @@ export interface Product {
   inStock: boolean;
   category: string;
   reviews: UserReview[];
+  
 }

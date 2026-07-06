@@ -111,7 +111,7 @@ export class SeoManager {
             url,
             brand: {
               '@type': 'Brand',
-              name: 'Crocus Trade',
+              name: 'E-commerce',
             },
             offers: {
               '@type': 'Offer',

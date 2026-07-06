@@ -18,13 +18,13 @@ import { StarRating } from "../star-rating/star-rating";
       <img
         [src]="product().imageUrl"
         class="w-full h-[300px] object-cover rounded-t-xl"
-        [routerLink]="['/product', product().id]"
+        [routerLink]="['/product', product().slug]"
         [style.view-transition-name]="'product-image-' + product().id"
       />
 
       <ng-content />
 
-      <div class="p-5 flex flex-col flex-1" [routerLink]="['/product', product().id]">
+      <div class="p-5 flex flex-col flex-1" [routerLink]="['/product', product().slug]">
         <h3 class="text-lg font-semibold text-gray-900 mb-2 leading-tight">
           {{ product().name }}
         </h3>
@@ -62,7 +62,7 @@ export class ProductCard {
 
   // 👇 ВСТАВЛЯЕШЬ СЮДА
   openProduct() {
-    this.router.navigate(['/product', this.product().id]);
+    this.router.navigate(['/product', this.product().slug]);
   }
 
   addToCart(event: Event) {
