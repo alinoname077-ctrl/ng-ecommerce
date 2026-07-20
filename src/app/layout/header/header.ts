@@ -19,7 +19,7 @@ import { NgIf } from '@angular/common';
           class="logo"
           (click)="store.resetFilters()"
         >
-         Компания  C-TRADE    
+          C-TRADE    
            Контакты: 8(708)172-40-84(Whatsapp)
         </a>
         <button

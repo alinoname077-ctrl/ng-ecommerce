@@ -22,15 +22,21 @@ app.get('/google87342c1a9cd54865.html', (req, res) => {
 
 const categories = ['all', 'automation', 'drives', 'pumps', 'valves', 'heat-exchangers'];
 const productIds = Array.from({ length: 20 }, (_, index) => `p-${index + 1}`);
-const primaryOrigin = 'https://ng-ecommerce-sigma.vercel.app';
+const primaryOrigin = 'https://c-trade.kz';
 
 const allowedHosts = [
   'localhost',
   '127.0.0.1',
+
   '*.vercel.app',
+
+  'c-trade.kz',
+  'www.c-trade.kz',
+
   process.env['VERCEL_URL'],
   process.env['VERCEL_BRANCH_URL'],
   process.env['VERCEL_PROJECT_PRODUCTION_URL'],
+
   ...(process.env['NG_ALLOWED_HOSTS']?.split(',') ?? []),
 ]
   .filter((host): host is string => !!host)
