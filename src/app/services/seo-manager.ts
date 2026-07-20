@@ -19,10 +19,10 @@ export class SeoManager {
 
   private request = inject(REQUEST, { optional: true });
 
-  private readonly siteName = 'Crocus Trade';
+  private readonly siteName = 'C-Trade';
   private readonly defaultImage =
     'https://img01.flagma-tm.com/photo/zakupki-i-soprovozhdenie-sdelok-v-es-ot-imeni-vashey-kompanii-1760331_medium.jpg';
-  private readonly primaryOrigin = 'https://ng-ecommerce-sigma.vercel.app';
+private readonly primaryOrigin = 'https://c-trade.kz';
 
   updateSeoTags(seoData: SeoData) {
     const title = seoData.title || this.siteName;
