@@ -1,5 +1,4 @@
-import { UserReview } from "./user-review";
-
+import { UserReview } from './user-review';
 export interface Product {
   id: string;
   slug: string;
@@ -12,5 +11,4 @@ export interface Product {
   inStock: boolean;
   category: string;
   reviews: UserReview[];
-  
 }

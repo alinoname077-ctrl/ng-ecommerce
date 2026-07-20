@@ -17,7 +17,19 @@ import { MatIcon } from "@angular/material/icon";
       {{ product().category | titlecase }}
     </div>
     <h1 class="text-2xl font-extrabold mb-4">{{ product().name }}</h1>
-    <p class="text-3xl font-bold mb-4">\${{ product().price }}</p>
+   @if(product().price > 0) {
+
+  <p class="text-3xl font-bold mb-4">
+    {{ product().price | number }} ₸
+  </p>
+
+} @else {
+
+  <p class="text-3xl font-bold mb-4">
+    Цена по запросу
+  </p>
+
+}
     <app-stock-status class="mb-4" [inStock]="product().inStock" />
     <p class="font-semibold mb-2">Description</p>
     <p class="text-gray-600 border-gray-200 pb-4">

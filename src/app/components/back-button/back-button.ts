@@ -6,11 +6,14 @@ import { MatIcon } from "@angular/material/icon";
   selector: 'app-back-button',
   imports: [MatButton, RouterLink, MatIcon],
   template: `
-   <button matButton="text"[routerLink]="navigateTo() ?? null" class="flex Items-center gap-1">
-    <mat-icon>arrow_back</mat-icon>
-  <ng-content/>
- </button>
-
+<button
+  mat-button
+  [routerLink]="navigateTo()"
+  class="flex items-center gap-1"
+>
+  <mat-icon>arrow_back</mat-icon>
+  <ng-content></ng-content>
+</button>
   `,
   styles: `
     :host{

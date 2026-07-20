@@ -3,20 +3,20 @@ import { EcommerceStore } from '../../ecommerce-store';
 import { BackButton } from '../../components/back-button/back-button';
 import { ProductInfo } from './product-info/product-info';
 import { ViewReviews } from "./view-reviews/view-reviews";
-
+import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-view-product-detail',
   standalone: true,
-  imports: [BackButton, ProductInfo, ViewReviews],
+  imports: [RouterLink, ProductInfo, ViewReviews],
   template: `
     <div class="mx-auto max-w-[1200px] py-6">
 
-      <app-back-button 
-        class="mb-6" 
-        [navigateTo]="backRoute()"
-      >
-        Continue Shopping
-      </app-back-button>
+     <a
+  [routerLink]="backRoute()"
+  class="text-blue-600"
+>
+  ← Continue Shopping
+</a>
 
       @if (product(); as product) {
         <div class="flex gap-8 mb-8">
@@ -52,6 +52,11 @@ constructor() {
 
     this.store.setProductId(product.id);
     this.store.setProductSeoTags(product);
+  });
+
+  effect(() => {
+    console.log('category:', this.store.category());
+    console.log('backRoute:', this.backRoute());
   });
 }
 

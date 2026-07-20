@@ -38,10 +38,11 @@ import { WriteReview } from '../write-review/write-review';
 export class ViewReviews {
   product = input.required<Product>();
   store = inject(EcommerceStore);
+sortedReviews = computed(() => {
+  const reviews = this.product().reviews ?? [];
 
-  sortedReviews = computed(() => {
-    return [...this.product().reviews].sort(
-      (a, b) => b.reviewDate.getTime() - a.reviewDate.getTime(),
-    );
-  });
+  return [...reviews].sort(
+    (a, b) => b.reviewDate.getTime() - a.reviewDate.getTime(),
+  );
+});
 }

@@ -19,7 +19,8 @@ import { NgIf } from '@angular/common';
           class="logo"
           (click)="store.resetFilters()"
         >
-          E-commerce
+         Компания  C-TRADE    
+           Контакты: 8(708)172-40-84(Whatsapp)
         </a>
         <button
   class="px-3 py-1 border rounded"

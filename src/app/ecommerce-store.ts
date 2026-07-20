@@ -1,4 +1,5 @@
 import { computed, inject } from '@angular/core';
+import { ProductService } from './services/product.service';
 import { Product } from './models/product';
 import {
   patchState,
@@ -7,6 +8,7 @@ import {
   withComputed,
   withMethods,
   withState,
+  withHooks,
 } from '@ngrx/signals';
 import { produce } from 'immer';
 import { SeoManager } from './services/seo-manager';
@@ -23,7 +25,8 @@ export type EcommerceState = {
   products: Product[];
   category: string;
   search: string;
-
+currentPage: number;
+pageSize: number;
 categoriesOpen: boolean;
   wishlistItems: Product[];
   cartItems: CartItem[];
@@ -37,105 +40,177 @@ categoriesOpen: boolean;
 
 export const EcommerceStore = signalStore(
   { providedIn: 'root' },
-  withState({
-    products: [
-      {
-        id: 'p-1',
-        slug: 'ridan-21rt0206r-compact',
-        name: 'Ridan 21RT0206R Compact',
-        description:
-          'Ridan 21RT0206R Compact - компактный электронный терморегулятор для автоматического контроля температуры в системах отопления, теплых полов и водоснабжения. Подходит для точной настройки инженерных систем и поддержания стабильного режима работы оборудования.',
-        price: 299.99,
-        imageUrl: 'https://ridan.kz/open-files/files/1824/1824339-21RT0206R+Compact.png',
-        rating: 4.7,
-        reviewCount: 12,
-        inStock: true,
-        category: 'automation',
-        reviews: [],
-      },
-      {
-        id: 'p-2',
-        slug: 'ridan-013g9000r-tr-9000-ultra',
-        name: 'Ридан 013G9000R — Термостатический элемент TR 9000 Ultra',
-        description: 'Термостатический элемент Ридан 013G9000R предназначен для поддержания комфортной температуры в помещениях с водяным отоплением. Модель оснащена встроенным жидкостным датчиком и совместима с клапанами типа RA. Устройство автоматически реагирует на изменение температуры воздуха, помогая снизить перерасход тепловой энергии и повысить комфорт эксплуатации системы отопления.',
-        price: 499.99,
-        imageUrl: 'https://ridan.ru/files/1659/1659598-9000_0.png',
-        rating: 4.8,
-        reviewCount: 9,
-        inStock: true,
-         category: 'Drives',
-        reviews: [],
-      },
-      {
-        id: 'p-3',
-        slug: 'wilo-star-rs-25-6',
-        name: 'Wilo Star-RS 25/6',
-        description: 'Циркуляционный насос для отопительных систем.',
-        price: 359.99,
-        imageUrl: 'https://wilo.com/content/dam/wilo/images/products/star-rs.jpg',
-        rating: 4.6,
-        reviewCount: 14,
-        inStock: true,
-        category: 'pumps',
-        reviews: [],
-      },
-    ],
+withState({
+  products: [],
+  category: 'all',
+  search: '',
 
-    category: 'all',
-    search: '',
-    categoriesOpen: false,
-    wishlistItems: [],
-    cartItems: [],
-    user: undefined,
-    loading: false,
-    selectedProductId: undefined,
-    writeReview: false,
-  } as EcommerceState),
+  currentPage: 1,
+  pageSize: 24,
+totalProducts: 0,
+  categoriesOpen: false,
+  wishlistItems: [],
+  cartItems: [],
+  user: undefined,
+  loading: false,
+  selectedProductId: undefined,
+  writeReview: false,
+} as EcommerceState),
+ 
   // TEMP: отключено из-за SSR (localStorage is not defined)
   // withStorageSync({
   //   key: 'modern-store',
   //   select: ({ wishlistItems, cartItems, user }) => ({ wishlistItems, cartItems, user }),
   // }),
-  withComputed(({ category, products, wishlistItems, cartItems, selectedProductId, search }) => ({
-    filteredProducts: computed(() => {
-      const term = (search() || '').toLowerCase().trim();
+  withComputed(({
+  category,
+  products,
+  wishlistItems,
+  cartItems,
+  selectedProductId,
+  search,
+  currentPage,
+  pageSize,
+}) => {
 
-      return products().filter((p) => {
-        const matchesCategory =
-  category() === 'all' ||
-  p.category.toLowerCase() === category().toLowerCase();
+  const filteredProducts = computed(() => {
+    const term = search().toLowerCase().trim();
 
-        const matchesSearch =
-          !term || `${p.name} ${p.description} ${p.category}`.toLowerCase().includes(term);
+    return products().filter((p) => {
+      const matchesCategory =
+        category() === 'all' ||
+        p.category.toLowerCase() === category().toLowerCase();
 
-        return matchesCategory && matchesSearch;
-      });
-    }),
+      const matchesSearch =
+        !term ||
+        `${p.name} ${p.description} ${p.category}`
+          .toLowerCase()
+          .includes(term);
+
+      return matchesCategory && matchesSearch;
+    });
+  });
+
+  const totalProducts = computed(() => filteredProducts().length);
+
+  const totalPages = computed(() =>
+    Math.max(1, Math.ceil(totalProducts() / pageSize()))
+  );
+
+  const pagedProducts = computed(() => {
+    const start = (currentPage() - 1) * pageSize();
+
+    return filteredProducts().slice(
+      start,
+      start + pageSize()
+    );
+  });
+
+  return {
+
+    filteredProducts,
+
+    totalProducts,
+
+    totalPages,
+
+    pagedProducts,
+    categories: computed(() => {
+  const unique = new Set(
+    products()
+      .map((p) => p.category)
+      .filter(Boolean)
+      .sort()
+  );
+
+  return [
+    { label: 'All', value: 'all' },
+    ...Array.from(unique).map((category) => ({
+      label: category,
+      value: category,
+    })),
+  ];
+}),
 
     wishlistCount: computed(() => wishlistItems().length),
 
-    cartCount: computed(() => cartItems().reduce((acc, item) => acc + item.quantity, 0)),
+    cartCount: computed(() =>
+      cartItems().reduce(
+        (acc, item) => acc + item.quantity,
+        0
+      )
+    ),
 
-    selectedProduct: computed(() => products().find((p) => p.id === selectedProductId())),
-  })),
+    selectedProduct: computed(() =>
+      products().find(
+        (p) => p.id === selectedProductId()
+      )
+    ),
+  };
+
+}),
   withMethods(
-    (
-      store,
-      toaster = inject(Toaster),
-      matDialog = inject(MatDialog),
-      router = inject(Router),
-      seoManager = inject(SeoManager),
-    ) => ({
+   (
+  store,
+  toaster = inject(Toaster),
+  matDialog = inject(MatDialog),
+  router = inject(Router),
+  seoManager = inject(SeoManager),
+  productService = inject(ProductService),
+) => ({
       setCategory: signalMethod<string>((category: string) => {
-        patchState(store, { category });
-      }),
+  patchState(store, {
+    category,
+    currentPage: 1,
+  });
+}),
       resetFilters: () => {
         patchState(store, {
           search: '',
           category: 'all',
+          currentPage: 1,
           selectedProductId: undefined,
         });
       },
+      nextPage: () => {
+  if (store.currentPage() < store.totalPages()) {
+    patchState(store, {
+      currentPage: store.currentPage() + 1,
+    });
+  }
+},
+
+previousPage: () => {
+  if (store.currentPage() > 1) {
+    patchState(store, {
+      currentPage: store.currentPage() - 1,
+    });
+  }
+},
+
+goToPage: signalMethod<number>((page: number) => {
+  patchState(store, {
+    currentPage: page,
+  });
+}),
+setPageSize: signalMethod<number>((pageSize) => {
+  patchState(store, {
+    pageSize,
+  });
+}),
+
+      loadProducts: () => {
+  productService.getProducts().subscribe({
+    next: (products) => {
+      console.log('COUNT PRODUCTS:', products.length);
+
+     patchState(store, { products });
+    },
+    error: (err) => {
+      console.error('Cannot load products.json', err);
+    },
+  });
+},
       setProductsListSeoTags: signalMethod<string | undefined>((category) => {
         const categoryName = category ? category.charAt(0).toUpperCase() + category.slice(1) : 'All';
         const description = category
@@ -146,7 +221,8 @@ export const EcommerceStore = signalStore(
           description,
         });
       }),
- 
+
+
 
       toggleCategories: () => {
   patchState(store, {
@@ -338,14 +414,19 @@ const updatedWishlistItems = produce(store.wishlistItems(), (draft) => {
       hideWriteReview: () => {
         patchState(store, { writeReview: false });
       },
-      addReview: async ({ title, comment, rating }: AddReviewParams) => {
+               addReview: async ({ title, comment, rating }: AddReviewParams) => {
         patchState(store, { loading: true });
-        const product = store.products().find((p) => p.id === store.selectedProductId());
+
+        const product = store.products().find(
+          (p) => p.id === store.selectedProductId()
+        );
+
         if (!product) {
           toaster.error('Product not found');
           patchState(store, { loading: false });
           return;
         }
+
         const newReview: UserReview = {
           id: crypto.randomUUID(),
           title,
@@ -356,21 +437,33 @@ const updatedWishlistItems = produce(store.wishlistItems(), (draft) => {
           userImageUrl: store.user()?.imageUrl || '',
           reviewDate: new Date(),
         };
+
         const updatedProducts = produce(store.products(), (draft) => {
           const index = draft.findIndex((p) => p.id === product.id);
-          draft[index].reviews.push(newReview);
-          draft[index].rating =
-            Math.round(
-              (draft[index].reviews.reduce((acc, r) => acc + r.rating, 0) /
-                draft[index].reviews.length) *
-                10,
-            ) / 10;
-          draft[index].reviewCount = draft[index].reviews.length;
+
+          if (index !== -1) {
+            draft[index].reviews.push(newReview);
+            draft[index].rating =
+              Math.round(
+                (draft[index].reviews.reduce((acc, r) => acc + r.rating, 0) /
+                  draft[index].reviews.length) *
+                  10
+              ) / 10;
+
+            draft[index].reviewCount = draft[index].reviews.length;
+          }
         });
+
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        patchState(store, { loading: false, products: updatedProducts, writeReview: false });
+
+        patchState(store, {
+          loading: false,
+          products: updatedProducts,
+          writeReview: false,
+        });
+
         toaster.success('Review added successfully');
-      }
-    }),
-  ),
+      },
+    })
+  )
 );

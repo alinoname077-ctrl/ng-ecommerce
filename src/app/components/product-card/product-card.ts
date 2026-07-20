@@ -1,4 +1,5 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { Product } from '../../models/product';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -9,7 +10,7 @@ import { StarRating } from "../star-rating/star-rating";
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [MatButton, MatIcon, RouterLink, StarRating],
+  imports: [MatButton, MatIcon, RouterLink, StarRating, DecimalPipe],
   template: `
     <div
       class="relative bg-white cursor-pointer rounded-xl shadow-lg overflow-hidden flex flex-col h-full transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-xl"
@@ -43,12 +44,28 @@ import { StarRating } from "../star-rating/star-rating";
         </div>
 
         <div class="flex items-center justify-between mt-auto">
-          <span class="text-2xl font-bold text-gray-900">\${{ product().price }}</span>
-          <button matButton="filled" (click)="addToCart($event)">
-            <mat-icon>shopping_cart</mat-icon>
-            Add to Cart
-          </button>
-        </div>
+
+  @if(product().price > 0) {
+
+    <span class="text-2xl font-bold text-gray-900">
+      {{ product().price | number }} ₸
+    </span>
+
+  } @else {
+
+    <span class="text-lg font-bold text-gray-900">
+      Цена по запросу
+    </span>
+
+  }
+
+
+  <button matButton="filled" (click)="addToCart($event)">
+    <mat-icon>shopping_cart</mat-icon>
+    Add to Cart
+  </button>
+
+</div>
       </div>
     </div>
   `,
