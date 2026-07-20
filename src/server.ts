@@ -6,6 +6,7 @@ import {
 } from '@angular/ssr/node';
 
 import express from 'express';
+import { readFile } from 'node:fs/promises';
 import { join } from 'path';
 
 import { dirname, resolve } from 'node:path';
@@ -19,9 +20,18 @@ const browserDistFolder = resolve(serverDistFolder, '../browser');
 app.get('/google87342c1a9cd54865.html', (req, res) => {
   res.sendFile(join(browserDistFolder, 'google87342c1a9cd54865.html'));
 });
+interface Product {
+  slug: string;
+  categorySlug?: string;
+}
 
-const categories = ['all', 'automation', 'drives', 'pumps', 'valves', 'heat-exchangers'];
-const productIds = Array.from({ length: 20 }, (_, index) => `p-${index + 1}`);
+async function getProducts(): Promise<Product[]> {
+  const filePath = join(browserDistFolder, 'data/products.json');
+
+  const data = await readFile(filePath, 'utf-8');
+
+  return JSON.parse(data);
+}
 const primaryOrigin = 'https://c-trade.kz';
 
 const allowedHosts = [
@@ -49,13 +59,7 @@ const angularApp = new AngularNodeAppEngine({
 });
 
 function getPublicOrigin(req: express.Request): string {
-  const protocol = (req.get('x-forwarded-proto') || req.protocol || 'https').split(',')[0].trim();
-  const host = (req.get('x-forwarded-host') || req.get('host') || '').split(',')[0].trim();
-  const hostname = host.split(':')[0];
-
-  return hostname === 'localhost' || hostname === '127.0.0.1'
-    ? `${protocol}://${host}`
-    : primaryOrigin;
+  return primaryOrigin;
 }
 
 app.get('/robots.txt', (req, res) => {
@@ -72,13 +76,17 @@ app.get('/robots.txt', (req, res) => {
   );
 });
 
-app.get('/sitemap.xml', (req, res) => {
+app.get('/sitemap.xml', async (req, res) => {
   const origin = getPublicOrigin(req);
   const today = new Date().toISOString().slice(0, 10);
+
+  const products = await getProducts();
+
   const urls = [
     `${origin}/`,
-    ...categories.map((category) => `${origin}/products/${category}`),
-    ...productIds.map((productId) => `${origin}/product/${productId}`),
+    ...products.map(
+      (product) => `${origin}/product/${product.slug}`
+    ),
   ];
 
   res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>
@@ -88,7 +96,7 @@ ${urls
     (url) => `  <url>
     <loc>${url}</loc>
     <lastmod>${today}</lastmod>
-  </url>`,
+  </url>`
   )
   .join('\n')}
 </urlset>
