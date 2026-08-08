@@ -99,37 +99,42 @@ private readonly primaryOrigin = 'https://c-trade.kz';
     const id = 'seo-structured-data';
     const existing = this.document.getElementById(id);
     existing?.remove();
+const data =
+  seoData.type === 'product'
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
 
-    const data =
-      seoData.type === 'product'
-        ? {
-            '@context': 'https://schema.org',
-            '@type': 'Product',
-            name: seoData.title,
-            description: seoData.description,
-            image: imageUrl,
-            url,
-            brand: {
-              '@type': 'Brand',
-              name: 'E-commerce',
-            },
-            offers: {
-              '@type': 'Offer',
-              priceCurrency: seoData.currency || 'USD',
-              price: seoData.price?.toString(),
-              availability: seoData.inStock
-                ? 'https://schema.org/InStock'
-                : 'https://schema.org/OutOfStock',
-              url,
-            },
-          }
-        : {
-            '@context': 'https://schema.org',
-            '@type': 'WebSite',
-            name: this.siteName,
-            url,
-            description: seoData.description,
-          };
+        name: seoData.title,
+
+        sku: seoData.sku,
+
+        description: seoData.description,
+        image: imageUrl,
+        url,
+
+        brand: {
+          '@type': 'Brand',
+          name: 'Ридан',
+        },
+
+        offers: {
+          '@type': 'Offer',
+          priceCurrency: seoData.currency || 'kzt',
+          price: seoData.price?.toString(),
+          availability: seoData.inStock
+            ? 'https://schema.org/InStock'
+            : 'https://schema.org/OutOfStock',
+          url,
+        },
+      }
+    : {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: this.siteName,
+        url,
+        description: seoData.description,
+      };
 
     const script = this.document.createElement('script');
     script.id = id;

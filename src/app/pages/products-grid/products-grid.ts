@@ -29,26 +29,34 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 ],
   template: `
     <mat-sidenav-container>
-   <mat-sidenav mode="side" [opened]="store.categoriesOpen()">
+      <mat-sidenav
+        mode="side"
+        [opened]="store.categoriesOpen()"
+        class="w-[300px] min-w-[300px]"
+      >
         <div class="p-6">
           <h2 class="text-lg text-gray-900">Categories</h2>
 
           <mat-nav-list>
-           @for (cat of store.categories(); track cat.value) {
-  <mat-list-item
-    [activated]="cat.value === categoryValue()"
-    class="my-2"
-    [routerLink]="['/products', cat.value]"
-  >
-    <span
-      matListItemTitle
-      class="font-medium"
-      [class]="cat.value === categoryValue() ? '!text-white' : null"
-    >
-      {{ cat.label }}
-    </span>
-  </mat-list-item>
-}
+            @for (cat of store.categories(); track cat.value) {
+
+              <mat-list-item
+                [activated]="cat.value === categoryValue()"
+                class="my-2"
+                [routerLink]="['/products', cat.value]"
+                (click)="store.closeCategories()"
+              >
+
+                <span
+                  matListItemTitle
+                  class="font-medium whitespace-normal break-words"
+                  [class]="cat.value === categoryValue() ? '!text-white' : null"
+                >
+                  {{ cat.label }}
+                </span>
+
+              </mat-list-item>
+            }
           </mat-nav-list>
         </div>
       </mat-sidenav>
@@ -109,7 +117,21 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
     <div class="bg-gray100 p-6 h-full"></div>
   `,
-  styles: ``,
+  styles: `
+  :host ::ng-deep .mat-mdc-list-item {
+    height: auto !important;
+    min-height: 48px !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  :host ::ng-deep .mat-mdc-list-item .mdc-list-item__primary-text {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    line-height: 1.3 !important;
+  }
+`,
 })
 export default class ProductsGrid {
 onPageChange(event: PageEvent) {

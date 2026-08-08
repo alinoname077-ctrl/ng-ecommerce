@@ -252,6 +252,9 @@ closeCategories: () => {
           description: product.description,
           image: product.imageUrl,
           type: 'product',
+         
+          sku: product.id,
+
           price: product.price,
           currency: 'USD',
           inStock: product.inStock,
