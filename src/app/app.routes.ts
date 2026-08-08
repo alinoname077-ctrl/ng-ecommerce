@@ -2,11 +2,10 @@ import { Routes } from '@angular/router';
 
 
 export const routes: Routes = [
-    {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: 'products/all',
-    },
+   {
+  path: '',
+  loadComponent: () => import('./pages/home/home').then(m => m.Home),
+},
     {
 
     path: 'products/:category',
