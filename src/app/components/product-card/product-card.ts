@@ -13,24 +13,24 @@ import { StarRating } from "../star-rating/star-rating";
   imports: [MatButton, MatIcon, RouterLink, StarRating, DecimalPipe],
   template: `
     <div
-      class="relative bg-white cursor-pointer rounded-xl shadow-lg overflow-hidden flex flex-col h-full transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-xl"
+      class="product-card relative bg-white cursor-pointer rounded-xl shadow-lg overflow-hidden flex flex-col h-full transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-xl"
       (click)="openProduct()"
     >
       <img
         [src]="product().imageUrl"
-        class="w-full h-[300px] object-cover rounded-t-xl"
+        class="product-card__image w-full h-[300px] object-cover rounded-t-xl"
         [routerLink]="['/product', product().slug]"
         [style.view-transition-name]="'product-image-' + product().id"
       />
 
       <ng-content />
 
-      <div class="p-5 flex flex-col flex-1" [routerLink]="['/product', product().slug]">
-        <h3 class="text-lg font-semibold text-gray-900 mb-2 leading-tight">
+      <div class="product-card__body p-5 flex flex-col flex-1" [routerLink]="['/product', product().slug]">
+        <h3 class="product-card__title text-lg font-semibold text-gray-900 mb-2 leading-tight">
           {{ product().name }}
         </h3>
 
-        <p class="text-sm text-gray-600 mb-4 flex-1 leading-relaxed">
+        <p class="product-card__description text-sm text-gray-600 mb-4 flex-1 leading-relaxed">
           {{ product().description }}
         </p>
 
@@ -43,17 +43,17 @@ import { StarRating } from "../star-rating/star-rating";
           {{ product().inStock ? 'In Stock' : 'Out of Stock' }}
         </div>
 
-        <div class="flex items-center justify-between mt-auto">
+        <div class="product-card__footer flex items-center justify-between mt-auto">
 
   @if(product().price > 0) {
 
-    <span class="text-2xl font-bold text-gray-900">
+    <span class="product-card__price text-2xl font-bold text-gray-900">
       {{ product().price | number }} ₸
     </span>
 
   } @else {
 
-    <span class="text-lg font-bold text-gray-900">
+    <span class="product-card__price text-lg font-bold text-gray-900">
       Цена по запросу
     </span>
 

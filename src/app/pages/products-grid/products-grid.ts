@@ -52,7 +52,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
           </mat-nav-list>
         </div>
       </mat-sidenav>
-      <mat-sidenav-content class="bg-gray100 p-6 h-full">
+      <mat-sidenav-content class="products-content bg-gray100 p-6 h-full">
         <h1 class="text-2xl font-bold text-gray-900 mb-1">{{ categoryValue() | titlecase }}</h1>
         <p class="text-base text-gray-600 mb-6">
           {{ store.filteredProducts().length }} products found
@@ -82,7 +82,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 </mat-paginator>
 
 
-<div class="flex justify-center items-center gap-4 mt-10">
+<div class="products-page-controls flex justify-center items-center gap-4 mt-10">
 
   <button
     class="px-4 py-2 border rounded disabled:opacity-50"

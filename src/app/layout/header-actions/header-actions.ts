@@ -24,7 +24,7 @@ import { MatDialog } from '@angular/material/dialog';
     MatDivider,
   ],
   template: `
-    <div class="flex items-center gap-2">
+    <div class="site-header-actions flex items-center gap-2">
       <button
         matIconButton
         routerLink="/wishlist"

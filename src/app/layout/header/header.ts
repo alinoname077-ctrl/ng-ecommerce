@@ -10,8 +10,8 @@ import { NgIf } from '@angular/common';
   standalone: true,
   imports: [MatToolbar, HeaderActions, RouterLink, NgIf],
   template: `
-    <mat-toolbar class="w-full elevated py-2">
-      <div class="max-w-[1200px] mx-auto w-full flex items-center gap-4">
+    <mat-toolbar class="site-header w-full elevated py-2">
+      <div class="site-header__inner max-w-[1200px] mx-auto w-full flex items-center gap-4">
 
         <!-- LOGO -->
         <a
@@ -23,14 +23,14 @@ import { NgIf } from '@angular/common';
            Контакты: 8(708)172-40-84(Whatsapp)
         </a>
         <button
-  class="px-3 py-1 border rounded"
+  class="site-header__menu px-3 py-1 border rounded"
   (click)="store.toggleCategories()"
 >
   ☰ 
 </button>
 
         <!-- SEARCH -->
-        <div class="flex-1 relative">
+        <div class="site-header__search flex-1 relative">
 
           <input
             type="text"

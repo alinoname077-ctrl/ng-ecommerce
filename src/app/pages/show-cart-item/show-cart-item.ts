@@ -11,17 +11,17 @@ import { MatIconModule } from "@angular/material/icon";
   selector: 'app-show-cart-item',
   imports: [QtySelector, MatButtonModule, MatIconModule],
   template: `
-    <div class="grid grid-cols-3 grid-cols-[3fr_1fr_1fr] ">
-      <div class="flex items-center gap-4">
-        <img [src]="item().product.imageUrl" class="w-24 h-24 rounded-lg object-cover"[style.view-transition-name]="'product-image-' +item().product.id" />
-<div>
-      <div class="text-gray-900/' text-lg font-semibold">{{ item().product.name }}</div>
-      <div class="text-gray-600 text-lg">\${{ item().product.price }}</div>
+    <div class="cart-item grid grid-cols-3 grid-cols-[3fr_1fr_1fr] ">
+      <div class="cart-item__product flex items-center gap-4">
+        <img [src]="item().product.imageUrl" class="cart-item__image w-24 h-24 rounded-lg object-cover"[style.view-transition-name]="'product-image-' +item().product.id" />
+<div class="cart-item__details">
+      <div class="cart-item__name text-gray-900/' text-lg font-semibold">{{ item().product.name }}</div>
+      <div class="cart-item__price text-gray-600 text-lg">\${{ item().product.price }}</div>
 </div>
   </div>
   <app-qty-selector [quantity]="item().quantity" (qtyUpdated)="store.setItemQuantity({productId: item().product.id, quantity: $event})"/>
 
-    <div class="flex flex-col items-end">
+    <div class="cart-item__total flex flex-col items-end">
 <div class="text-right font-semibold text-lg">
   \${{total()}}
   </div>

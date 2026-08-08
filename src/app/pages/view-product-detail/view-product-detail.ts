@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [RouterLink, ProductInfo, ViewReviews],
   template: `
-    <div class="mx-auto max-w-[1200px] py-6">
+    <div class="product-detail-page mx-auto max-w-[1200px] py-6">
 
      <a
   [routerLink]="backRoute()"
@@ -19,10 +19,10 @@ import { RouterLink } from '@angular/router';
 </a>
 
       @if (product(); as product) {
-        <div class="flex gap-8 mb-8">
+        <div class="product-detail-layout flex gap-8 mb-8">
           <img 
             [src]="product.imageUrl" 
-            class="w-[500px] h-[500px] object-cover rounded-lg" 
+            class="product-detail-image w-[500px] h-[500px] object-cover rounded-lg" 
             [style.view-transition-name]="'product-image-' + product.id"
           />
           <div class="flex-1">

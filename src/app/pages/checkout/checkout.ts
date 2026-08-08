@@ -11,7 +11,7 @@ import { MatButton } from '@angular/material/button';
   standalone: true, // ← обязательно
   imports: [BackButton, ShippingForm, SummarizeOrder, PaymentFormComponent,MatButton],
   template: `
-  <div class="mx-auto max-w-[1200px] py-6">
+  <div class="checkout-page mx-auto max-w-[1200px] py-6">
     <app-back-button class="mb-4" navigateTo="/cart">Back to Cart</app-back-button>
 
     <h1 class="text-3xl font-extrabold mb-4">Checkout</h1>

@@ -43,7 +43,7 @@ import { MatIcon } from "@angular/material/icon";
       />
     </div>
 
-<div class="flex gap-4 mb border-b border-gray-200 pb-4">
+<div class="product-actions flex gap-4 mb border-b border-gray-200 pb-4">
   <button 
   matButton="filled"
 class="w-2/3 flex items-center gap-2"

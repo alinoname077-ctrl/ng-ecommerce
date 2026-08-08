@@ -18,7 +18,7 @@ import { MatButtonModule } from '@angular/material/button';
 ],
 
   template: `
-   <div class="mx-auto max-w-[1200px] py-6">
+   <div class="cart-page mx-auto max-w-[1200px] py-6">
    <app-back-button class="mb-6" navigateTo="/products/all">Continue Shopping</app-back-button>
     <h1 class="text-xl font-extrabold mb-4">Shopping Cart</h1>
 
@@ -45,5 +45,4 @@ export default class ViewCart {
   store = inject(EcommerceStore);
 }
  
-
 
