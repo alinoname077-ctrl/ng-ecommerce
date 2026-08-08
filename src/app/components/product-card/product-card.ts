@@ -25,21 +25,21 @@ import { StarRating } from "../star-rating/star-rating";
 
       <ng-content />
 
-      <div class="product-card__body p-5 flex flex-col flex-1" [routerLink]="['/product', product().slug]">
-        <h3 class="product-card__title text-lg font-semibold text-gray-900 mb-2 leading-tight">
+      <div class="product-card__body p-3 flex flex-col flex-1" [routerLink]="['/product', product().slug]">
+        <h3 class="product-card__title text-base font-semibold text-gray-900 mb-1 leading-tight">
           {{ product().name }}
         </h3>
 
-        <p class="product-card__description text-sm text-gray-600 mb-4 flex-1 leading-relaxed">
+        <p class="product-card__description text-xs text-gray-600 mb-2 flex-1 leading-snug">
           {{ product().description }}
         </p>
 
-        <app-star-rating class="mb-3" [rating]="product().rating">
+       <app-star-rating class="mb-2" [rating]="product().rating">
 ({{ product().reviewCount }})
 
         </app-star-rating>
 
-        <div class="text-sm font-medium mb-4">
+        <div class="text-xs font-medium mb-2">
           {{ product().inStock ? 'In Stock' : 'Out of Stock' }}
         </div>
 
@@ -47,7 +47,7 @@ import { StarRating } from "../star-rating/star-rating";
 
   @if(product().price > 0) {
 
-    <span class="product-card__price text-2xl font-bold text-gray-900">
+   <span class="product-card__price text-xl font-bold text-gray-900">
       {{ product().price | number }} ₸
     </span>
 
