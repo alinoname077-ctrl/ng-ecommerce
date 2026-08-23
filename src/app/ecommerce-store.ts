@@ -30,6 +30,7 @@ pageSize: number;
 categoriesOpen: boolean;
   wishlistItems: Product[];
   cartItems: CartItem[];
+  currentOrder: Order | undefined;
   user: User | undefined;
 
   loading: boolean;
@@ -51,6 +52,7 @@ totalProducts: 0,
   categoriesOpen: false,
   wishlistItems: [],
   cartItems: [],
+  currentOrder: undefined,
   user: undefined,
   loading: false,
   selectedProductId: undefined,
@@ -368,8 +370,55 @@ const updatedWishlistItems = produce(store.wishlistItems(), (draft) => {
 
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        patchState(store, { loading: false, cartItems: [] });
+        patchState(store, { loading: false, cartItems: [], currentOrder: order });
         router.navigate(['order-success']);
+      },
+
+      startKaspiPayment: () => {
+        if (!store.cartItems().length) {
+          toaster.error('Your cart is empty');
+          return;
+        }
+
+        const subtotal = Math.round(
+          store.cartItems().reduce((acc, item) => acc + item.quantity * item.product.price, 0),
+        );
+
+        const order: Order = {
+          id: `CT-TEST-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
+          userId: store.user()?.id || 'guest',
+          total: subtotal + Math.round(0.05 * subtotal),
+          items: store.cartItems(),
+          currency: 'KZT',
+          paymentMethod: 'Kaspi',
+          paymentStatus: 'PENDING',
+        };
+
+        patchState(store, { currentOrder: order });
+        router.navigate(['/payment/kaspi']);
+      },
+
+      completeKaspiPayment: async () => {
+        const order = store.currentOrder();
+
+        if (!order || order.paymentMethod !== 'Kaspi') {
+          toaster.error('Test order not found');
+          router.navigate(['/checkout']);
+          return;
+        }
+
+        patchState(store, { loading: true });
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        patchState(store, {
+          loading: false,
+          cartItems: [],
+          currentOrder: {
+            ...order,
+            paymentStatus: 'PAID',
+          },
+        });
+        router.navigate(['/order-success']);
       },
 
       signIn: ({ email, password, checkout, dialogId }: SignInParams) => {

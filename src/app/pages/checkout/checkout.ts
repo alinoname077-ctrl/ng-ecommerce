@@ -34,6 +34,14 @@ import { MatButton } from '@angular/material/button';
             >
             {{ store.loading() ? 'Processing...' : 'Place Order' }}
           </button>
+          <button
+            matButton="outlined"
+            class="w-full mt-3 py-3"
+            [disabled]="store.loading()"
+            (click)="store.startKaspiPayment()"
+          >
+            Оплатить через Kaspi
+          </button>
  </ng-container>
 </app-summarize-order>
       </div>

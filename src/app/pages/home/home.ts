@@ -1,6 +1,8 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { EcommerceStore } from '../../ecommerce-store';
+import { WhatsappButton } from '../../components/whatsapp-button/whatsapp-button';
+import { CONTACT_CONFIG } from '../../config/contact.config';
 
 type HomeCategory = {
   label: string;
@@ -9,9 +11,11 @@ type HomeCategory = {
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [WhatsappButton],
   template: `
     <main class="home-page">
+      <app-whatsapp-button />
+
       <section class="hero" aria-labelledby="home-hero-title">
         <img
           class="hero__image"
@@ -139,6 +143,23 @@ type HomeCategory = {
           >
             ПЕРЕЙТИ В КАТАЛОГ
           </a>
+        </div>
+      </section>
+
+      <section class="section section--contacts" aria-labelledby="contacts-title">
+        <div class="contacts">
+          <div>
+            <p class="section__eyebrow">Контакты</p>
+            <h2 id="contacts-title">Связаться с нами</h2>
+          </div>
+
+          <div class="contacts__details">
+            <p><strong>Телефон:</strong> {{ contact.phone }}</p>
+            <div class="contacts__whatsapp">
+              <strong>WhatsApp:</strong>
+              <app-whatsapp-button variant="inline" />
+            </div>
+          </div>
         </div>
       </section>
     </main>
@@ -483,6 +504,41 @@ type HomeCategory = {
         background: #f8fafc;
       }
 
+      .contacts {
+        align-items: center;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        gap: 28px;
+        justify-content: space-between;
+      }
+
+      .contacts h2 {
+        color: #111827;
+        font-size: clamp(1.85rem, 3vw, 3rem);
+        font-weight: 820;
+        letter-spacing: 0;
+        line-height: 1.12;
+        margin: 10px 0 0;
+      }
+
+      .contacts__details {
+        color: #334155;
+        display: grid;
+        gap: 14px;
+        font-size: 1rem;
+      }
+
+      .contacts__details p {
+        margin: 0;
+      }
+
+      .contacts__whatsapp {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
       @media (max-width: 960px) {
         .hero__content {
           grid-template-columns: 1fr;
@@ -503,6 +559,11 @@ type HomeCategory = {
         }
 
         .cta {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .contacts {
           align-items: flex-start;
           flex-direction: column;
         }
@@ -576,6 +637,7 @@ type HomeCategory = {
 export class Home {
   private readonly router = inject(Router);
   protected readonly store = inject(EcommerceStore);
+  protected readonly contact = CONTACT_CONFIG;
 
   protected readonly categories = computed<HomeCategory[]>(() =>
     this.store.categories().filter((category) => category.value !== 'all'),

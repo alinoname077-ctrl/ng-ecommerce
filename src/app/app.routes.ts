@@ -30,6 +30,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/checkout/checkout'),
 },
 {
+    path: 'payment/kaspi',
+    loadComponent: () => import('./pages/payment-kaspi/payment-kaspi'),
+},
+{
     path: 'order-success',
     loadComponent: () => import('./pages/order-success/order-success'),
 },

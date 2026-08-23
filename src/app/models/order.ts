@@ -5,5 +5,7 @@ export type Order = {
     userId: string;
     total: number;
     items: CartItem[];
-    paymentStatus: 'success' | 'failure';
+    currency?: 'KZT';
+    paymentMethod?: 'Kaspi';
+    paymentStatus: 'success' | 'failure' | 'PENDING' | 'PAID';
 };

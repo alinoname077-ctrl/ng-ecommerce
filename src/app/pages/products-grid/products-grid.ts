@@ -11,6 +11,7 @@ import { effect } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { WhatsappButton } from '../../components/whatsapp-button/whatsapp-button';
 @Component({
   selector: 'app-products-grid',
   standalone: true,
@@ -26,8 +27,11 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
   TitleCasePipe,
   ToggleWishlistButton,
   MatPaginatorModule,
+  WhatsappButton,
 ],
   template: `
+    <app-whatsapp-button />
+
     <mat-sidenav-container>
       <mat-sidenav
         mode="side"

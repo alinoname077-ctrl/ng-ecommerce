@@ -1,11 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
+import { EcommerceStore } from '../../ecommerce-store';
 
 @Component({
   selector: 'app-order-success',
-  imports: [MatIcon, MatButton, RouterLink],
+  imports: [DecimalPipe, MatIcon, MatButton, RouterLink],
   template: `
     <div class="flex justify-center items-center h-[calc(100vh-64px)] py-6">
       <div
@@ -27,6 +29,14 @@ import { RouterLink } from '@angular/router';
           You will receive an email confirmation shortly with your order details and tracking
           information.
         </p>
+        @if (store.currentOrder()?.paymentMethod === 'Kaspi') {
+          <div class="w-full rounded-lg border p-4 text-left">
+            <p class="font-semibold">Order: {{ store.currentOrder()?.id }}</p>
+            <p>Payment method: Kaspi</p>
+            <p>Payment status: {{ store.currentOrder()?.paymentStatus }}</p>
+            <p>Total: {{ store.currentOrder()?.total | number: '1.0-0' }} ₸</p>
+          </div>
+        }
         <button matButton="filled" color="primary" class="w-full max-w-xs mt-2" routerLink="/">
           Continue Shopping
         </button>
@@ -35,4 +45,6 @@ import { RouterLink } from '@angular/router';
   `,
   styles: ``,
 })
-export default class OrderSuccess {}
+export default class OrderSuccess {
+  store = inject(EcommerceStore);
+}

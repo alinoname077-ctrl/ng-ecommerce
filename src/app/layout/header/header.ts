@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { EcommerceStore } from '../../ecommerce-store';
 import { HeaderActions } from '../header-actions/header-actions';
 import { NgIf } from '@angular/common';
+import { CONTACT_CONFIG } from '../../config/contact.config';
 
 @Component({
   selector: 'app-header',
@@ -20,7 +21,7 @@ import { NgIf } from '@angular/common';
           (click)="store.resetFilters()"
         >
           C-TRADE    
-           Контакты: 8(708)172-40-84(Whatsapp)
+          
         </a>
 <button
   class="site-header__menu px-3 py-1 border rounded"
@@ -72,6 +73,7 @@ import { NgIf } from '@angular/common';
 })
 export class Header {
   store = inject(EcommerceStore);
+  protected readonly contact = CONTACT_CONFIG;
   private readonly router = inject(Router);
 
   onSearch(event: Event) {

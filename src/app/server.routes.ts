@@ -26,6 +26,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server
   },
   {
+    path: 'payment/kaspi',
+    renderMode: RenderMode.Server
+  },
+  {
     path: 'order-success',
     renderMode: RenderMode.Server
   },
