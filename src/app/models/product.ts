@@ -5,10 +5,16 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  currency?: string;
+  priceOnRequest?: boolean;
   imageUrl: string;
-  rating: number;
-  reviewCount: number;
-  inStock: boolean;
+  rating?: number;
+  reviewCount?: number;
+  inStock?: boolean;
   category: string;
-  reviews: UserReview[];
+  categorySlug?: string;
+  subcategory?: string;
+  subcategorySlug?: string;
+  series?: string;
+  reviews?: UserReview[];
 }

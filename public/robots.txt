@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ng-ecommerce-sigma.vercel.app/sitemap.xml
+Sitemap: https://c-trade.kz/sitemap.xml

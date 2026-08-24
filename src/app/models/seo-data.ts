@@ -5,6 +5,8 @@ export interface SeoData {
   type?: 'website' | 'product';
 
   sku?: string;
+  brand?: string;
+  category?: string;
 
   price?: number;
   currency?: string;

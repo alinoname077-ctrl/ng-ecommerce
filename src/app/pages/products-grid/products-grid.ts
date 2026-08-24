@@ -44,7 +44,8 @@ import { WhatsappButton } from '../../components/whatsapp-button/whatsapp-button
           <mat-nav-list>
             @for (cat of store.categories(); track cat.value) {
 
-              <mat-list-item
+              <a
+                mat-list-item
                 [activated]="cat.value === categoryValue()"
                 class="my-2"
                 [routerLink]="['/products', cat.value]"
@@ -59,7 +60,7 @@ import { WhatsappButton } from '../../components/whatsapp-button/whatsapp-button
                   {{ cat.label }}
                 </span>
 
-              </mat-list-item>
+              </a>
             }
           </mat-nav-list>
         </div>
@@ -89,6 +90,7 @@ import { WhatsappButton } from '../../components/whatsapp-button/whatsapp-button
   class="mt-8"
   [length]="store.totalProducts()"
   [pageSize]="store.pageSize()"
+  [pageIndex]="store.currentPage() - 1"
   [pageSizeOptions]="[24, 48, 96]"
   (page)="onPageChange($event)">
 </mat-paginator>
@@ -96,23 +98,31 @@ import { WhatsappButton } from '../../components/whatsapp-button/whatsapp-button
 
 <div class="products-page-controls flex justify-center items-center gap-4 mt-10">
 
-  <button
-    class="px-4 py-2 border rounded disabled:opacity-50"
-    (click)="store.previousPage()"
-    [disabled]="store.currentPage() === 1">
-    ← Previous
-  </button>
+  @if (store.currentPage() > 1) {
+    <a
+      class="px-4 py-2 border rounded"
+      [routerLink]="['/products', categoryValue()]"
+      [queryParams]="{ page: store.currentPage() - 1 }">
+      ← Previous
+    </a>
+  } @else {
+    <span class="px-4 py-2 border rounded opacity-50" aria-disabled="true">← Previous</span>
+  }
 
   <span class="font-medium">
     Page {{ store.currentPage() }} of {{ store.totalPages() }}
   </span>
 
-  <button
-    class="px-4 py-2 border rounded disabled:opacity-50"
-    (click)="store.nextPage()"
-    [disabled]="store.currentPage() >= store.totalPages()">
-    Next →
-  </button>
+  @if (store.currentPage() < store.totalPages()) {
+    <a
+      class="px-4 py-2 border rounded"
+      [routerLink]="['/products', categoryValue()]"
+      [queryParams]="{ page: store.currentPage() + 1 }">
+      Next →
+    </a>
+  } @else {
+    <span class="px-4 py-2 border rounded opacity-50" aria-disabled="true">Next →</span>
+  }
 
 </div>
 
@@ -153,10 +163,19 @@ category = toSignal(
   { initialValue: this.route.snapshot.paramMap }
 
 );
+page = toSignal(
+  this.route.queryParamMap,
+  { initialValue: this.route.snapshot.queryParamMap }
+);
 
 categoryValue = computed(() =>
   this.category()?.get('category') ?? 'all'
 );
+pageValue = computed(() => {
+  const rawPage = Number(this.page()?.get('page') || '1');
+
+  return Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1;
+});
   store = inject(EcommerceStore);
 
  
@@ -166,6 +185,7 @@ constructor() {
     const category = this.categoryValue();
 
     this.store.setCategory(category);
+    this.store.goToPage(this.pageValue());
     this.store.setProductsListSeoTags(category);
   });
 }}

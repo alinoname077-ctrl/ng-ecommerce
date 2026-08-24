@@ -30,11 +30,34 @@ import { MatIcon } from "@angular/material/icon";
   </p>
 
 }
-    <app-stock-status class="mb-4" [inStock]="product().inStock" />
-    <p class="font-semibold mb-2">Description</p>
+    <app-stock-status class="mb-4" [inStock]="product().inStock ?? true" />
+    <h2 class="text-lg font-semibold mb-2">Описание</h2>
     <p class="text-gray-600 border-gray-200 pb-4">
       {{ product().description }}
     </p>
+    <section class="border-y border-gray-200 py-4 my-4">
+      <h2 class="text-lg font-semibold mb-3">Характеристики</h2>
+      <dl class="grid grid-cols-[minmax(120px,180px)_1fr] gap-x-4 gap-y-2 text-sm text-gray-700">
+        <dt class="font-semibold">Артикул</dt>
+        <dd>{{ product().id }}</dd>
+
+        <dt class="font-semibold">Бренд</dt>
+        <dd>Ридан</dd>
+
+        <dt class="font-semibold">Категория</dt>
+        <dd>{{ product().category }}</dd>
+
+        @if (product().subcategory) {
+          <dt class="font-semibold">Подкатегория</dt>
+          <dd>{{ product().subcategory }}</dd>
+        }
+
+        @if (product().series) {
+          <dt class="font-semibold">Серия</dt>
+          <dd>{{ product().series }}</dd>
+        }
+      </dl>
+    </section>
     <div class="flex items-center gap-4 mb-3 pt-4">
       <span class="font-semibold">Quantity</span>
       <app-qty-selector 
@@ -51,7 +74,7 @@ class="w-2/3 flex items-center gap-2"
 [disabled]="!product().inStock"
 >
 <mat-icon>shopping_cart</mat-icon>
-{{ product().inStock ? 'Add to Cart' : 'Out of Stock' }}
+{{ (product().inStock ?? true) ? 'Add to Cart' : 'Out of Stock' }}
 </button>
   <app-toggle-wishlist-button [product]="product()" />
   <button matIconButton>

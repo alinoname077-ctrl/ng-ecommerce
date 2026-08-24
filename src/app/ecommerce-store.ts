@@ -81,7 +81,7 @@ totalProducts: 0,
     return products().filter((p) => {
       const matchesCategory =
         category() === 'all' ||
-        p.category.toLowerCase() === category().toLowerCase();
+        (p.categorySlug || p.category).toLowerCase() === category().toLowerCase();
 
       const matchesSearch =
         !term ||
@@ -118,18 +118,20 @@ totalProducts: 0,
 
     pagedProducts,
     categories: computed(() => {
-  const unique = new Set(
-    products()
-      .map((p) => p.category)
-      .filter(Boolean)
-      .sort()
-  );
+  const unique = new Map<string, string>();
+
+  products()
+    .filter((product) => product.category)
+    .sort((a, b) => a.category.localeCompare(b.category))
+    .forEach((product) => {
+      unique.set(product.categorySlug || product.category, product.category);
+    });
 
   return [
     { label: 'All', value: 'all' },
-    ...Array.from(unique).map((category) => ({
-      label: category,
-      value: category,
+    ...Array.from(unique.entries()).map(([value, label]) => ({
+      label,
+      value,
     })),
   ];
 }),
@@ -204,8 +206,6 @@ setPageSize: signalMethod<number>((pageSize) => {
       loadProducts: () => {
   productService.getProducts().subscribe({
     next: (products) => {
-      console.log('COUNT PRODUCTS:', products.length);
-
      patchState(store, { products });
     },
     error: (err) => {
@@ -213,6 +213,20 @@ setPageSize: signalMethod<number>((pageSize) => {
     },
   });
 },
+      upsertProduct: (product: Product) => {
+        const existingIndex = store.products().findIndex((item) => item.id === product.id);
+
+        if (existingIndex === -1) {
+          patchState(store, { products: [product, ...store.products()] });
+          return;
+        }
+
+        const products = produce(store.products(), (draft) => {
+          draft[existingIndex] = product;
+        });
+
+        patchState(store, { products });
+      },
       setProductsListSeoTags: signalMethod<string | undefined>((category) => {
         const categoryName = category ? category.charAt(0).toUpperCase() + category.slice(1) : 'All';
         const description = category
@@ -249,17 +263,26 @@ closeCategories: () => {
       setProductSeoTags: signalMethod<Product|undefined>((product) => {
         if (!product) return;
 
+        const descriptionParts = [
+          product.description,
+          product.category ? `Категория: ${product.category}` : '',
+          product.series ? `Серия: ${product.series}` : '',
+          product.id ? `Артикул: ${product.id}` : '',
+        ].filter(Boolean);
+
         seoManager.updateSeoTags({
           title: product.name,
-          description: product.description,
+          description: descriptionParts.join('. '),
           image: product.imageUrl,
           type: 'product',
          
           sku: product.id,
+          brand: 'Ридан',
+          category: product.category,
 
           price: product.price,
-          currency: 'USD',
-          inStock: product.inStock,
+          currency: product.currency || 'KZT',
+          inStock: product.inStock ?? true,
         });
       }),
       addToWishlist: (product: Product) => {
@@ -494,15 +517,16 @@ const updatedWishlistItems = produce(store.wishlistItems(), (draft) => {
           const index = draft.findIndex((p) => p.id === product.id);
 
           if (index !== -1) {
-            draft[index].reviews.push(newReview);
-            draft[index].rating =
-              Math.round(
-                (draft[index].reviews.reduce((acc, r) => acc + r.rating, 0) /
-                  draft[index].reviews.length) *
+          draft[index].reviews = draft[index].reviews || [];
+          draft[index].reviews.push(newReview);
+          draft[index].rating =
+            Math.round(
+                ((draft[index].reviews || []).reduce((acc, r) => acc + r.rating, 0) /
+                  (draft[index].reviews?.length || 1)) *
                   10
               ) / 10;
 
-            draft[index].reviewCount = draft[index].reviews.length;
+            draft[index].reviewCount = draft[index].reviews?.length || 0;
           }
         });
 

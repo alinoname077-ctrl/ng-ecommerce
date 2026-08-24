@@ -25,12 +25,33 @@ interface Product {
   categorySlug?: string;
 }
 
+let productsCache: Product[] | undefined;
+let productSlugCache: Set<string> | undefined;
+
 async function getProducts(): Promise<Product[]> {
+  if (productsCache) {
+    return productsCache;
+  }
+
   const filePath = join(browserDistFolder, 'data/products.json');
 
   const data = await readFile(filePath, 'utf-8');
 
-  return JSON.parse(data);
+  const products = JSON.parse(data) as Product[];
+  productsCache = products;
+
+  return products;
+}
+
+async function getProductSlugs(): Promise<Set<string>> {
+  if (productSlugCache) {
+    return productSlugCache;
+  }
+
+  const products = await getProducts();
+  productSlugCache = new Set(products.map((product) => product.slug).filter(Boolean));
+
+  return productSlugCache;
 }
 const primaryOrigin = 'https://c-trade.kz';
 
@@ -62,6 +83,20 @@ function getPublicOrigin(req: express.Request): string {
   return primaryOrigin;
 }
 
+function xmlEscape(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+function getProductSlugFromPath(path: string): string | undefined {
+  const match = path.match(/^\/product\/([^/?#]+)\/?$/);
+  return match ? decodeURIComponent(match[1]) : undefined;
+}
+
 app.get('/robots.txt', (req, res) => {
   const origin = getPublicOrigin(req);
 
@@ -81,9 +116,14 @@ app.get('/sitemap.xml', async (req, res) => {
   const today = new Date().toISOString().slice(0, 10);
 
   const products = await getProducts();
+  const categorySlugs = Array.from(
+    new Set(products.map((product) => product.categorySlug).filter(Boolean)),
+  );
 
   const urls = [
     `${origin}/`,
+    `${origin}/products/all`,
+    ...categorySlugs.map((categorySlug) => `${origin}/products/${categorySlug}`),
     ...products.map(
       (product) => `${origin}/product/${product.slug}`
     ),
@@ -94,7 +134,7 @@ app.get('/sitemap.xml', async (req, res) => {
 ${urls
   .map(
     (url) => `  <url>
-    <loc>${url}</loc>
+    <loc>${xmlEscape(url)}</loc>
     <lastmod>${today}</lastmod>
   </url>`
   )
@@ -112,10 +152,23 @@ app.use(
 
 app.use(async (req, res, next) => {
   try {
+    const productSlug = getProductSlugFromPath(req.path);
+    const productExists = productSlug ? (await getProductSlugs()).has(productSlug) : true;
     const response = await angularApp.handle(req);
 
     if (response) {
-      writeResponseToNodeResponse(response, res);
+      if (!productExists) {
+        const body = await response.text();
+        const notFoundResponse = new Response(body, {
+          status: 404,
+          statusText: 'Not Found',
+          headers: response.headers,
+        });
+
+        writeResponseToNodeResponse(notFoundResponse, res);
+      } else {
+        writeResponseToNodeResponse(response, res);
+      }
     } else {
       next();
     }

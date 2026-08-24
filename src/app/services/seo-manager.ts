@@ -62,7 +62,8 @@ private readonly primaryOrigin = 'https://c-trade.kz';
           : this.primaryOrigin;
     }
 
-    const fullUrl = origin + (this.router.url || '');
+    const path = (this.router.url || '/').split('?')[0].split('#')[0] || '/';
+    const fullUrl = origin + path;
 
     // Canonical must be present in SSR HTML so crawlers can see it.
     if (fullUrl) {
@@ -80,11 +81,11 @@ private readonly primaryOrigin = 'https://c-trade.kz';
     }
 
     // 🖼 OpenGraph
-    const imageUrl = seoData.image || this.defaultImage;
+    const imageUrl = this.toAbsoluteUrl(seoData.image || this.defaultImage, origin);
 
     this.meta.updateTag({ property: 'og:type', content: seoData.type || 'website' });
     this.meta.updateTag({ property: 'og:site_name', content: this.siteName });
-    this.meta.updateTag({ property: 'og:title', content: title });
+    this.meta.updateTag({ property: 'og:title', content: `${title} | ${this.siteName}` });
     this.meta.updateTag({ property: 'og:description', content: description });
     this.meta.updateTag({ property: 'og:url', content: fullUrl });
     this.meta.updateTag({ property: 'og:image', content: imageUrl });
@@ -99,47 +100,108 @@ private readonly primaryOrigin = 'https://c-trade.kz';
     const id = 'seo-structured-data';
     const existing = this.document.getElementById(id);
     existing?.remove();
-const data =
-  seoData.type === 'product'
-    ? {
-        '@context': 'https://schema.org',
-        '@type': 'Product',
+    const organization = {
+      '@type': 'Organization',
+      '@id': `${this.primaryOrigin}/#organization`,
+      name: this.siteName,
+      url: this.primaryOrigin,
+    };
 
-        name: seoData.title,
-
-        sku: seoData.sku,
-
-        description: seoData.description,
-        image: imageUrl,
-        url,
-
-        brand: {
-          '@type': 'Brand',
-          name: 'Ридан',
-        },
-
-        offers: {
-          '@type': 'Offer',
-          priceCurrency: seoData.currency || 'kzt',
-          price: seoData.price?.toString(),
-          availability: seoData.inStock
-            ? 'https://schema.org/InStock'
-            : 'https://schema.org/OutOfStock',
-          url,
-        },
-      }
-    : {
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        name: this.siteName,
-        url,
-        description: seoData.description,
-      };
+    const data =
+      seoData.type === 'product'
+        ? {
+            '@context': 'https://schema.org',
+            '@graph': [
+              organization,
+              this.productStructuredData(seoData, url, imageUrl),
+              this.breadcrumbStructuredData(seoData, url),
+            ],
+          }
+        : {
+            '@context': 'https://schema.org',
+            '@graph': [
+              organization,
+              {
+                '@type': 'WebSite',
+                '@id': `${this.primaryOrigin}/#website`,
+                name: this.siteName,
+                url: this.primaryOrigin,
+                description: seoData.description,
+              },
+            ],
+          };
 
     const script = this.document.createElement('script');
     script.id = id;
     script.type = 'application/ld+json';
     script.textContent = JSON.stringify(data);
     this.document.head.appendChild(script);
+  }
+
+  private productStructuredData(seoData: SeoData, url: string, imageUrl: string) {
+    const product: Record<string, unknown> = {
+      '@type': 'Product',
+      '@id': `${url}#product`,
+      name: seoData.title,
+      description: seoData.description,
+      image: imageUrl,
+      url,
+      sku: seoData.sku,
+      brand: {
+        '@type': 'Brand',
+        name: seoData.brand || 'Ридан',
+      },
+      category: seoData.category,
+    };
+
+    if (seoData.price && seoData.price > 0) {
+      product['offers'] = {
+        '@type': 'Offer',
+        priceCurrency: seoData.currency || 'KZT',
+        price: seoData.price.toString(),
+        availability: seoData.inStock
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+        url,
+      };
+    }
+
+    return product;
+  }
+
+  private breadcrumbStructuredData(seoData: SeoData, url: string) {
+    const items = [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: this.siteName,
+        item: this.primaryOrigin,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: seoData.category || 'Каталог',
+        item: `${this.primaryOrigin}/products/all`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: seoData.title,
+        item: url,
+      },
+    ];
+
+    return {
+      '@type': 'BreadcrumbList',
+      itemListElement: items,
+    };
+  }
+
+  private toAbsoluteUrl(url: string, origin: string) {
+    try {
+      return new URL(url, origin).toString();
+    } catch {
+      return this.defaultImage;
+    }
   }
 }
