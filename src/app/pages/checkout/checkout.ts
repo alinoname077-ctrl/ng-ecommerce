@@ -35,8 +35,8 @@ import { MatButton } from '@angular/material/button';
             {{ store.loading() ? 'Processing...' : 'Place Order' }}
           </button>
           <button
-            matButton="outlined"
-            class="w-full mt-3 py-3"
+            matButton
+            class="kaspi-payment-btn mt-3"
             [disabled]="store.loading()"
             (click)="store.startKaspiPayment()"
           >
@@ -48,6 +48,28 @@ import { MatButton } from '@angular/material/button';
 
     </div>
   </div>
+  `,
+  styles: `
+    .kaspi-payment-btn {
+      width: 100%;
+      min-height: 50px;
+      background: #f14635;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .kaspi-payment-btn:hover:not(:disabled) {
+      filter: brightness(0.95);
+    }
+
+    .kaspi-payment-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
   `,
 })
 export default class Checkout {
