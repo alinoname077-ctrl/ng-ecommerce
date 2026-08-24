@@ -16,7 +16,7 @@ import { CONTACT_CONFIG } from '../../config/contact.config';
 
         <!-- LOGO -->
         <a
-          routerLink="/products/all"
+          routerLink="/"
           class="logo"
           (click)="store.resetFilters()"
         >
