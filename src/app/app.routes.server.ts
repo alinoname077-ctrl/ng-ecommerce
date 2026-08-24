@@ -10,6 +10,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server
   },
   {
+    path: 'brands/ridan',
+    renderMode: RenderMode.Server
+  },
+  {
     path: 'product/:slug',
     renderMode: RenderMode.Server
   },

@@ -70,6 +70,12 @@ import { WhatsappButton } from '../../components/whatsapp-button/whatsapp-button
         <p class="text-base text-gray-600 mb-6">
           {{ store.filteredProducts().length }} products found
         </p>
+        <p class="text-sm text-gray-600 mb-6">
+          <a routerLink="/brands/ridan" class="text-blue-600 font-semibold">
+            Оборудование Ридан (RIDAN)
+          </a>
+          в каталоге C-Trade
+        </p>
 
         <div class="responsive-grid">
           @for (product of store.pagedProducts(); track product.id) {

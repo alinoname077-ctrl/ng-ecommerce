@@ -13,6 +13,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/products-grid/products-grid')
      },
 {
+  path: 'brands/ridan',
+  loadComponent: () => import('./pages/brand-ridan/brand-ridan')
+},
+{
   path: 'product/:slug',
   loadComponent: () => import('./pages/view-product-detail/view-product-detail'),
   resolve: {

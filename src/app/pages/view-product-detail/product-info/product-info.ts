@@ -7,11 +7,12 @@ import { MatAnchor, MatButton, MatIconButton } from "@angular/material/button";
 import { ToggleWishlistButton } from "../../../components/toggle-wishlist-button/toggle-wishlist-button";
 import { EcommerceStore } from '../../../ecommerce-store';
 import { MatIcon } from "@angular/material/icon";
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-product-info',
   standalone: true, // 🔥 важно!
-  imports: [CommonModule, StockStatus, QtySelector, MatAnchor, ToggleWishlistButton, MatIconButton, MatButton, MatIcon],
+  imports: [CommonModule, RouterLink, StockStatus, QtySelector, MatAnchor, ToggleWishlistButton, MatIconButton, MatButton, MatIcon],
   template: `
     <div class="text-xs rounded-xl bg-gray-100 px-2 py-1 w-fit mb-2">
       {{ product().category | titlecase }}
@@ -42,7 +43,9 @@ import { MatIcon } from "@angular/material/icon";
         <dd>{{ product().id }}</dd>
 
         <dt class="font-semibold">Бренд</dt>
-        <dd>Ридан</dd>
+        <dd>
+          <a routerLink="/brands/ridan" class="text-blue-600">Ридан (RIDAN)</a>
+        </dd>
 
         <dt class="font-semibold">Категория</dt>
         <dd>{{ product().category }}</dd>

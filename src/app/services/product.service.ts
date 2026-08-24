@@ -44,4 +44,18 @@ export class ProductService {
   getProductById(id: string): Observable<Product | undefined> {
     return this.productsById$.pipe(map((productsById) => productsById.get(id)));
   }
+
+  getRidanProducts(): Observable<Product[]> {
+    return this.products$.pipe(
+      map((products) =>
+        products.filter((product) =>
+          [product.name, product.description, product.series, product.category, product.subcategory]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase()
+            .match(/ридан|ridan/),
+        ),
+      ),
+    );
+  }
 }

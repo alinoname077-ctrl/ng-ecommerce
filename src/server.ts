@@ -122,6 +122,7 @@ app.get('/sitemap.xml', async (req, res) => {
 
   const urls = [
     `${origin}/`,
+    `${origin}/brands/ridan`,
     `${origin}/products/all`,
     ...categorySlugs.map((categorySlug) => `${origin}/products/${categorySlug}`),
     ...products.map(

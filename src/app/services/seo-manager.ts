@@ -107,29 +107,13 @@ private readonly primaryOrigin = 'https://c-trade.kz';
       url: this.primaryOrigin,
     };
 
-    const data =
-      seoData.type === 'product'
-        ? {
-            '@context': 'https://schema.org',
-            '@graph': [
-              organization,
-              this.productStructuredData(seoData, url, imageUrl),
-              this.breadcrumbStructuredData(seoData, url),
-            ],
-          }
-        : {
-            '@context': 'https://schema.org',
-            '@graph': [
-              organization,
-              {
-                '@type': 'WebSite',
-                '@id': `${this.primaryOrigin}/#website`,
-                name: this.siteName,
-                url: this.primaryOrigin,
-                description: seoData.description,
-              },
-            ],
-          };
+    const data = {
+      '@context': 'https://schema.org',
+      '@graph': [
+        organization,
+        ...this.pageStructuredData(seoData, url, imageUrl),
+      ],
+    };
 
     const script = this.document.createElement('script');
     script.id = id;
@@ -150,6 +134,7 @@ private readonly primaryOrigin = 'https://c-trade.kz';
       brand: {
         '@type': 'Brand',
         name: seoData.brand || 'Ридан',
+        alternateName: ['RIDAN', 'Ridan'],
       },
       category: seoData.category,
     };
@@ -167,6 +152,64 @@ private readonly primaryOrigin = 'https://c-trade.kz';
     }
 
     return product;
+  }
+
+  private pageStructuredData(seoData: SeoData, url: string, imageUrl: string) {
+    if (seoData.type === 'product') {
+      return [
+        this.productStructuredData(seoData, url, imageUrl),
+        this.breadcrumbStructuredData(seoData, url),
+      ];
+    }
+
+    if (seoData.type === 'collection') {
+      return [
+        {
+          '@type': 'CollectionPage',
+          '@id': `${url}#collection`,
+          name: seoData.title,
+          description: seoData.description,
+          url,
+          about: {
+            '@type': 'Brand',
+            name: seoData.brand || 'Ридан',
+            alternateName: ['RIDAN', 'Ridan'],
+          },
+        },
+        {
+          '@type': 'ItemList',
+          '@id': `${url}#itemlist`,
+          name: seoData.title,
+          itemListElement: (seoData.items || []).map((item, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            url: item.url,
+            item: {
+              '@type': 'Product',
+              name: item.name,
+              url: item.url,
+              image: item.image,
+              brand: {
+                '@type': 'Brand',
+                name: seoData.brand || 'Ридан',
+                alternateName: ['RIDAN', 'Ridan'],
+              },
+            },
+          })),
+        },
+        this.breadcrumbStructuredData(seoData, url),
+      ];
+    }
+
+    return [
+      {
+        '@type': 'WebSite',
+        '@id': `${this.primaryOrigin}/#website`,
+        name: this.siteName,
+        url: this.primaryOrigin,
+        description: seoData.description,
+      },
+    ];
   }
 
   private breadcrumbStructuredData(seoData: SeoData, url: string) {
