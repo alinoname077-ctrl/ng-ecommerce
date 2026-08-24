@@ -2,14 +2,13 @@ import { Component, inject } from '@angular/core';
 import { BackButton } from "../../components/back-button/back-button";
 import { ShippingForm } from "./shipping-form/shipping-form";
 import { SummarizeOrder } from "../../components/summarize-order/summarize-order";
-import { PaymentFormComponent } from "./payment-form/payment-form";
 import { EcommerceStore } from '../../ecommerce-store';
 import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-checkout',
   standalone: true, // ← обязательно
-  imports: [BackButton, ShippingForm, SummarizeOrder, PaymentFormComponent,MatButton],
+  imports: [BackButton, ShippingForm, SummarizeOrder, MatButton],
   template: `
   <div class="checkout-page mx-auto max-w-[1200px] py-6">
     <app-back-button class="mb-4" navigateTo="/cart">Back to Cart</app-back-button>
@@ -20,7 +19,6 @@ import { MatButton } from '@angular/material/button';
 
       <div class="lg:col-span-3 flex flex-col gap-6">
         <app-shipping-form></app-shipping-form>
-        <app-payment-form></app-payment-form>
       </div>
 
       <div class="lg:col-span-2">
