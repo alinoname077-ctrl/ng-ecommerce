@@ -1,19 +1,19 @@
-export interface SeoData {
-  title: string;
-  description: string;
+export type SeoItem = {
+  name: string;
+  url: string;
+  image?: string;
+};
+
+export type SeoData = {
+  title?: string;
+  description?: string;
   image?: string;
   type?: 'website' | 'product' | 'collection';
-
   sku?: string;
   brand?: string;
   category?: string;
-  items?: {
-    name: string;
-    url: string;
-    image?: string;
-  }[];
-
+  items?: SeoItem[];
   price?: number;
   currency?: string;
   inStock?: boolean;
-}
+};

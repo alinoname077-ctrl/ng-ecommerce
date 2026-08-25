@@ -27,7 +27,7 @@ export type EcommerceState = {
   search: string;
 currentPage: number;
 pageSize: number;
-categoriesOpen: boolean;
+  categoriesOpen: boolean;
   wishlistItems: Product[];
   cartItems: CartItem[];
   currentOrder: Order | undefined;
@@ -48,7 +48,6 @@ withState({
 
   currentPage: 1,
   pageSize: 24,
-totalProducts: 0,
   categoriesOpen: false,
   wishlistItems: [],
   cartItems: [],

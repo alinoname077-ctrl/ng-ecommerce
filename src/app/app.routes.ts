@@ -5,7 +5,11 @@ import { productResolver } from './resolvers/product.resolver';
 export const routes: Routes = [
    {
   path: '',
-  loadComponent: () => import('./pages/home/home').then(m => m.Home),
+  loadComponent: () => import('./pages/products-grid/products-grid'),
+},
+{
+  path: 'catalog',
+  loadComponent: () => import('./pages/products-grid/products-grid'),
 },
     {
 
