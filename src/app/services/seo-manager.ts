@@ -224,7 +224,9 @@ private readonly primaryOrigin = 'https://c-trade.kz';
         '@type': 'ListItem',
         position: 2,
         name: seoData.category || 'Каталог',
-        item: `${this.primaryOrigin}/products/all`,
+        item: seoData.categorySlug
+          ? `${this.primaryOrigin}/products/${seoData.categorySlug}`
+          : `${this.primaryOrigin}/`,
       },
       {
         '@type': 'ListItem',

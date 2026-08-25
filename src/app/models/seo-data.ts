@@ -12,6 +12,7 @@ export type SeoData = {
   sku?: string;
   brand?: string;
   category?: string;
+  categorySlug?: string;
   items?: SeoItem[];
   price?: number;
   currency?: string;

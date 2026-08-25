@@ -227,13 +227,28 @@ setPageSize: signalMethod<number>((pageSize) => {
         patchState(store, { products });
       },
       setProductsListSeoTags: signalMethod<string | undefined>((category) => {
-        const categoryName = category ? category.charAt(0).toUpperCase() + category.slice(1) : 'All';
-        const description = category
-          ? `Browse our collection of ${category} products`
-          : 'Browse our collection of products across all categories';
+        const normalizedCategory = category === 'all' ? undefined : category;
+        const categoryProduct = normalizedCategory
+          ? store.products().find((product) => product.categorySlug === normalizedCategory)
+          : undefined;
+        const categoryName = categoryProduct?.category || 'Каталог оборудования Ridan';
+        const description = normalizedCategory
+          ? `${categoryName}: оборудование Ridan для инженерных систем в каталоге C-Trade.`
+          : 'Каталог оборудования Ridan для систем отопления, теплоснабжения, водоснабжения и автоматизации.';
+        const items = store.filteredProducts().slice(0, 24).map((product) => ({
+          name: product.name,
+          url: `https://c-trade.kz/product/${product.slug}`,
+          image: product.imageUrl,
+        }));
+
         seoManager.updateSeoTags({
           title: categoryName,
           description,
+          type: 'collection',
+          brand: 'Ридан',
+          category: categoryName,
+          categorySlug: normalizedCategory,
+          items,
         });
       }),
 
@@ -278,6 +293,7 @@ closeCategories: () => {
           sku: product.id,
           brand: 'Ридан',
           category: product.category,
+          categorySlug: product.categorySlug,
 
           price: product.price,
           currency: product.currency || 'KZT',

@@ -97,6 +97,17 @@ function getProductSlugFromPath(path: string): string | undefined {
   return match ? decodeURIComponent(match[1]) : undefined;
 }
 
+app.use((req, res, next) => {
+  const host = req.headers.host?.split(':')[0].toLowerCase();
+
+  if (host === 'www.c-trade.kz') {
+    res.redirect(301, `${primaryOrigin}${req.originalUrl}`);
+    return;
+  }
+
+  next();
+});
+
 app.get('/robots.txt', (req, res) => {
   const origin = getPublicOrigin(req);
 
@@ -113,7 +124,6 @@ app.get('/robots.txt', (req, res) => {
 
 app.get('/sitemap.xml', async (req, res) => {
   const origin = getPublicOrigin(req);
-  const today = new Date().toISOString().slice(0, 10);
 
   const products = await getProducts();
   const categorySlugs = Array.from(
@@ -123,7 +133,6 @@ app.get('/sitemap.xml', async (req, res) => {
   const urls = [
     `${origin}/`,
     `${origin}/brands/ridan`,
-    `${origin}/products/all`,
     ...categorySlugs.map((categorySlug) => `${origin}/products/${categorySlug}`),
     ...products.map(
       (product) => `${origin}/product/${product.slug}`
@@ -136,7 +145,6 @@ ${urls
   .map(
     (url) => `  <url>
     <loc>${xmlEscape(url)}</loc>
-    <lastmod>${today}</lastmod>
   </url>`
   )
   .join('\n')}
