@@ -62,8 +62,7 @@ private readonly primaryOrigin = 'https://c-trade.kz';
           : this.primaryOrigin;
     }
 
-    const path = (this.router.url || '/').split('?')[0].split('#')[0] || '/';
-    const fullUrl = origin + path;
+    const fullUrl = origin + this.getCanonicalPath();
 
     // Canonical must be present in SSR HTML so crawlers can see it.
     if (fullUrl) {
@@ -248,5 +247,23 @@ private readonly primaryOrigin = 'https://c-trade.kz';
     } catch {
       return this.defaultImage;
     }
+  }
+
+  private getCanonicalPath() {
+    const currentUrl = this.router.url || '/';
+    const [pathWithQuery] = currentUrl.split('#');
+    const [path, queryString = ''] = pathWithQuery.split('?');
+    const cleanPath = path || '/';
+
+    if (cleanPath.startsWith('/products/') && queryString) {
+      const params = new URLSearchParams(queryString);
+      const page = Number(params.get('page') || '1');
+
+      if (Number.isInteger(page) && page > 1) {
+        return cleanPath + '?page=' + page;
+      }
+    }
+
+    return cleanPath;
   }
 }

@@ -108,6 +108,16 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  if (/^\/product\/[^/?#]+\/$/.test(req.path)) {
+    const canonicalPath = req.path.replace(/\/$/, '');
+    res.redirect(301, `${primaryOrigin}${canonicalPath}${req.url.slice(req.path.length)}`);
+    return;
+  }
+
+  next();
+});
+
 app.get('/robots.txt', (req, res) => {
   const origin = getPublicOrigin(req);
 
