@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { productResolver } from './resolvers/product.resolver';
+import { authGuard } from './services/auth/auth.guard';
 
 
 export const routes: Routes = [
@@ -40,6 +41,11 @@ export const routes: Routes = [
 {
     path: 'checkout',
     loadComponent: () => import('./pages/checkout/checkout'),
+},
+{
+    path: 'profile',
+    loadComponent: () => import('./pages/profile/profile'),
+    canActivate: [authGuard],
 },
 {
     path: 'payment/kaspi',

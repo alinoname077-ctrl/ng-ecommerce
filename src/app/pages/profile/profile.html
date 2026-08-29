@@ -1,0 +1,96 @@
+<section class="profile-page">
+  @if (user(); as profile) {
+    <header class="profile-hero">
+      @if (profile.imageUrl) {
+        <img [src]="profile.imageUrl" [alt]="profile.name" class="profile-hero__avatar" />
+      } @else {
+        <div class="profile-hero__avatar profile-hero__avatar--initials" aria-hidden="true">{{ initials() }}</div>
+      }
+
+      <div>
+        <h1>{{ profile.name }}</h1>
+        <p>Личный профиль C-TRADE</p>
+      </div>
+
+      <button type="button" matButton (click)="signOut()">
+        <mat-icon aria-hidden="true">logout</mat-icon>
+        Выйти
+      </button>
+    </header>
+
+    <div class="profile-grid">
+      <section class="profile-panel">
+        <h2>Контакты</h2>
+        <dl class="profile-details">
+          <div>
+            <dt>Имя</dt>
+            <dd>{{ profile.name || 'Не указано' }}</dd>
+          </div>
+          <div>
+            <dt>Телефон</dt>
+            <dd>{{ profile.phoneNumber || 'Не указан' }}</dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd>{{ profile.email || 'Не указан' }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="profile-panel">
+        <h2>Адрес доставки</h2>
+        @if (profile.deliveryAddress) {
+          <p class="profile-address">
+            {{ profile.deliveryAddress.city }}, {{ profile.deliveryAddress.street }}
+            @if (profile.deliveryAddress.apartment) {, {{ profile.deliveryAddress.apartment }} }
+          </p>
+        } @else {
+          <p class="profile-empty">Адрес пока не добавлен. Заполните его для будущих заказов.</p>
+        }
+
+        <form class="profile-address-form" [formGroup]="addressForm" (ngSubmit)="saveAddress()">
+          <mat-form-field appearance="outline">
+            <mat-label>Город</mat-label>
+            <input matInput formControlName="city" autocomplete="address-level2" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Улица и дом</mat-label>
+            <input matInput formControlName="street" autocomplete="street-address" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Квартира / офис</mat-label>
+            <input matInput formControlName="apartment" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Комментарий</mat-label>
+            <textarea matInput rows="3" formControlName="comment"></textarea>
+          </mat-form-field>
+          <button type="submit" matButton="filled">Сохранить адрес</button>
+        </form>
+      </section>
+
+      <section class="profile-panel profile-panel--wide">
+        <h2>История заказов</h2>
+        @if (profile.orderHistory.length) {
+          <div class="profile-orders">
+            @for (order of profile.orderHistory; track order.id) {
+              <article class="profile-order">
+                <div>
+                  <strong>{{ order.id }}</strong>
+                  <span>{{ order.createdAt | date: 'dd.MM.yyyy HH:mm' }}</span>
+                </div>
+                <div>{{ order.total | number: '1.0-0' }} {{ order.currency || 'KZT' }}</div>
+                <span>{{ order.paymentStatus }}</span>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="profile-empty profile-empty--orders">
+            <mat-icon aria-hidden="true">receipt_long</mat-icon>
+            <p>Заказов пока нет. Здесь появится история после оформления покупки.</p>
+          </div>
+        }
+      </section>
+    </div>
+  }
+</section>

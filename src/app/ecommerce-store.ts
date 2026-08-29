@@ -15,12 +15,13 @@ import { SeoManager } from './services/seo-manager';
 import { Toaster } from './services/toaster';
 import { CartItem } from './models/cart';
 import { MatDialog } from '@angular/material/dialog';
-import { SignInDialog } from './components/sign-in-dialog/sign-in-dialog';
+import { AuthDialog } from './components/auth-dialog/auth-dialog';
 import { SignInParams, SignUpParams, User } from './models/user';
 import { Router } from '@angular/router';
 import { Order } from './models/order';
 import { withStorageSync } from '@angular-architects/ngrx-toolkit';
 import { AddReviewParams, UserReview } from './models/user-review';
+import { AuthService } from './services/auth/auth.service';
 export type EcommerceState = {
   products: Product[];
   category: string;
@@ -158,6 +159,7 @@ withState({
   toaster = inject(Toaster),
   matDialog = inject(MatDialog),
   router = inject(Router),
+  authService = inject(AuthService),
   seoManager = inject(SeoManager),
   productService = inject(ProductService),
 ) => ({
@@ -376,8 +378,10 @@ const updatedWishlistItems = produce(store.wishlistItems(), (draft) => {
 
       proceedToCheckout: () => {
         if (!store.user()) {
-          matDialog.open(SignInDialog, {
-            disableClose: true,
+          matDialog.open(AuthDialog, {
+            autoFocus: false,
+            disableClose: false,
+            panelClass: 'auth-dialog-panel',
             data: {
               checkout: true,
             },
@@ -409,6 +413,13 @@ const updatedWishlistItems = produce(store.wishlistItems(), (draft) => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         patchState(store, { loading: false, cartItems: [], currentOrder: order });
+        authService.addOrderToHistory({
+          id: order.id,
+          total: order.total,
+          currency: order.currency || 'KZT',
+          paymentStatus: order.paymentStatus,
+          createdAt: new Date().toISOString(),
+        });
         router.navigate(['order-success']);
       },
 
@@ -456,44 +467,42 @@ const updatedWishlistItems = produce(store.wishlistItems(), (draft) => {
             paymentStatus: 'PAID',
           },
         });
+        authService.addOrderToHistory({
+          id: order.id,
+          total: order.total,
+          currency: order.currency || 'KZT',
+          paymentStatus: 'PAID',
+          createdAt: new Date().toISOString(),
+        });
         router.navigate(['/order-success']);
       },
 
-      signIn: ({ email, password, checkout, dialogId }: SignInParams) => {
-        patchState(store, {
-          user: {
-            id: '1',
-            email,
-            name: 'John Doe',
-            imageUrl: 'https://randomuser.me/api/portraits/men/1.jpg',
-          },
-        });
-
+      signIn: ({ checkout, dialogId }: SignInParams) => {
         matDialog.getDialogById(dialogId)?.close();
-
-        if (checkout) {
-          router.navigate(['/checkout']);
-        }
+        matDialog.open(AuthDialog, {
+          autoFocus: false,
+          disableClose: false,
+          panelClass: 'auth-dialog-panel',
+          data: { checkout },
+        });
       },
 
-      signUp: ({ email, password, name, checkout, dialogId }: SignUpParams) => {
-        patchState(store, {
-          user: {
-            id: '1',
-            email,
-            name: 'John D',
-            imageUrl: 'https://randomuser.me/api/portraits/men/1.jpg',
-          },
-        });
-
+      signUp: ({ checkout, dialogId }: SignUpParams) => {
         matDialog.getDialogById(dialogId)?.close();
-
-        if (checkout) {
-          router.navigate(['/checkout']);
-        }
+        matDialog.open(AuthDialog, {
+          autoFocus: false,
+          disableClose: false,
+          panelClass: 'auth-dialog-panel',
+          data: { checkout },
+        });
       },
 
-      signOut: () => {
+      setAuthenticatedUser: signalMethod<User | undefined>((user) => {
+        patchState(store, { user });
+      }),
+
+      signOut: async () => {
+        await authService.signOut();
         patchState(store, { user: undefined });
       },
 

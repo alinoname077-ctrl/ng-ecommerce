@@ -1,84 +1,251 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { MatBadge } from '@angular/material/badge';
-import { EcommerceStore } from '../../ecommerce-store';
-import { MatMenu, MatMenuItem, MatMenuPanel, MatMenuTrigger } from '@angular/material/menu';
-import { MatDivider } from '@angular/material/divider';
-import { SignInDialog } from '../../components/sign-in-dialog/sign-in-dialog';
-import { SignUpDialog } from '../../components/sign-up-dialog/sign-up-dialog';
 import { MatDialog } from '@angular/material/dialog';
+import { EcommerceStore } from '../../ecommerce-store';
+import { AuthDialog } from '../../components/auth-dialog/auth-dialog';
+import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-header-actions',
-  imports: [
-    MatIcon,
-    MatButton,
-    MatIconButton,
-    RouterLink,
-    MatBadge,
-    MatMenu,
-    MatMenuItem,
-    MatMenuTrigger,
-    MatDivider,
-  ],
-  template: `
-    <div class="site-header-actions flex items-center gap-2">
+  imports: [MatIcon, MatButton, MatIconButton, MatBadge],
+  template: `    <div class="site-header-actions flex items-center gap-2">
       <button
         matIconButton
-        routerLink="/wishlist"
+        type="button"
+        aria-label="Избранное"
         [matBadge]="store.wishlistCount()"
         [matBadgeHidden]="store.wishlistCount() === 0"
+        (click)="router.navigate(['/wishlist'])"
       >
         <mat-icon>favorite</mat-icon>
       </button>
       <button
         matIconButton
+        type="button"
+        aria-label="Корзина"
         [matBadge]="store.cartCount()"
         [matBadgeHidden]="store.cartCount() === 0"
-        routerLink="/cart"
+        (click)="router.navigate(['/cart'])"
       >
         <mat-icon>shopping_cart</mat-icon>
       </button>
-      @if (store.user(); as user) {
-        <button matIconButton [matMenuTriggerFor]="userMenu">
-          <img [src]="user.imageUrl" alt="user.name" class="w-8 h-8 rounded-full" />
-        </button>
 
-        <mat-menu #userMenu="matMenu" xPosition="before">
-          <div class="flex flex-col px-3 min-w-[200px]">
-            <span class="text-sm font-medium">{{ user.name }}</span>
-            <span class="text-xs text-gray-500">{{ user.email }}</span>
-          </div>
-          <mat-divider></mat-divider>
-          <button class="!min-h-[32px]" mat-menu-item (click)="store.signOut()" >
-            <mat-icon>logout</mat-icon>
-            Sign Out
-          </button>
-        </mat-menu>
-      } @else {
-      <button matButton (click)="openSignInDialog()">Sign In</button>
-      <button matButton="filled" (click)="openSignUpDialog()">Sign Up</button>
-      }
-
-      
+      <button
+        type="button"
+        matButton
+        class="profile-action"
+        aria-label="Профиль"
+        title="Профиль"
+        [disabled]="!authService.ready()"
+        [class.profile-action--signed-in]="isSignedIn()"
+        [class.profile-action--pending]="!authService.ready()"
+        (click)="openProfile()"
+      >
+        <span class="profile-action__avatar-wrap">
+          @if (!authService.ready()) {
+            <span class="profile-action__icon-avatar profile-action__icon-avatar--pending" aria-hidden="true">
+              <mat-icon>person</mat-icon>
+            </span>
+          } @else if (showProfilePhoto()) {
+            <img
+              [src]="user()?.imageUrl"
+              [alt]="profileName()"
+              class="profile-action__avatar"
+              (error)="handleProfilePhotoError()"
+            />
+          } @else if (showInitials()) {
+            <span class="profile-action__initials" aria-hidden="true">{{ profileInitials() }}</span>
+          } @else {
+            <span class="profile-action__icon-avatar" aria-hidden="true">
+              <mat-icon>person</mat-icon>
+            </span>
+          }
+          @if (isSignedIn()) {
+            <span class="profile-action__status" aria-hidden="true"></span>
+          }
+        </span>
+        @if (authService.ready()) {
+          <span class="profile-action__label">{{ profileName() }}</span>
+        }
+      </button>
     </div>
   `,
-  styles: ``,
+  styles: [`    .profile-action {
+      align-items: center;
+      display: inline-flex;
+      gap: 8px;
+      max-width: 180px;
+      min-height: 40px;
+      overflow: visible;
+      padding-inline: 12px;
+    }
+
+    .profile-action__label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .profile-action__avatar-wrap {
+      align-items: center;
+      display: inline-flex;
+      flex: 0 0 auto;
+      height: 32px;
+      justify-content: center;
+      overflow: visible;
+      position: relative;
+      width: 32px;
+    }
+
+    .profile-action__avatar {
+      border-radius: 999px;
+      height: 30px;
+      object-fit: cover;
+      width: 30px;
+    }
+
+    .profile-action__icon-avatar,
+    .profile-action__initials {
+      align-items: center;
+      background: #111827;
+      border-radius: 999px;
+      color: #ffffff;
+      display: inline-flex;
+      font-size: 0.78rem;
+      font-weight: 850;
+      height: 30px;
+      justify-content: center;
+      line-height: 1;
+      width: 30px;
+    }
+
+    .profile-action:not(.profile-action--signed-in) .profile-action__icon-avatar {
+      background: transparent;
+      color: inherit;
+      height: 24px;
+      width: 24px;
+    }
+
+    .profile-action__icon-avatar mat-icon {
+      font-size: 22px;
+      height: 22px;
+      width: 22px;
+    }
+
+    .profile-action__status {
+      background: #22c55e;
+      border: 2px solid #ffffff;
+      border-radius: 999px;
+      bottom: -1px;
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08);
+      height: 11px;
+      position: absolute;
+      right: -1px;
+      width: 11px;
+      z-index: 2;
+    }
+
+    .profile-action--pending {
+      opacity: 0.72;
+      pointer-events: none;
+    }
+
+    .profile-action__icon-avatar--pending {
+      opacity: 0.58;
+    }
+
+    @media (max-width: 640px) {
+      .site-header-actions {
+        gap: 4px;
+      }
+
+      .profile-action {
+        max-width: 112px;
+        min-width: 40px;
+        padding-inline: 8px;
+      }
+
+      .profile-action--signed-in {
+        min-width: 40px;
+        overflow: visible;
+        padding-inline: 6px;
+      }
+
+      .profile-action--signed-in .profile-action__label {
+        display: none;
+      }
+    }
+  `],
 })
 export class HeaderActions {
-  store = inject(EcommerceStore);
-matDialog = inject(MatDialog);
+  protected readonly store = inject(EcommerceStore);
+  protected readonly authService = inject(AuthService);
+  protected readonly user = this.authService.user;
+  protected readonly router = inject(Router);
+  private readonly matDialog = inject(MatDialog);
+  private readonly failedPhotoUrl = signal<string | undefined>(undefined);
+  protected readonly showProfilePhoto = computed(() => {
+    const user = this.user();
+    return this.isSignedIn() && !!user?.imageUrl && this.failedPhotoUrl() !== user.imageUrl;
+  });
 
-openSignInDialog() {
-  this.matDialog.open(SignInDialog, {
-    disableClose: true,
-  });
-}
-openSignUpDialog() {
-  this.matDialog.open(SignUpDialog, {
-    disableClose: true,
-  });
-}
+  protected isSignedIn() {
+    return this.authService.ready() && !!this.user();
+  }
+
+  protected profileName() {
+    const user = this.user();
+    if (!user) {
+      return 'Профиль';
+    }
+
+    const name = user.name?.trim();
+    return name && !name.startsWith('+') && name !== 'Пользователь' ? name : 'Мой профиль';
+  }
+
+  protected showInitials() {
+    const user = this.user();
+    return this.isSignedIn() && !!user && !this.isPhoneOnlyUser() && this.profileName() !== 'Мой профиль';
+  }
+
+  protected profileInitials() {
+    return this.profileName()
+      .split(/\s+/)
+      .map((part) => part[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+  }
+
+  protected handleProfilePhotoError() {
+    const url = this.user()?.imageUrl;
+    if (url) {
+      this.failedPhotoUrl.set(url);
+    }
+  }
+
+  protected openProfile() {
+    if (!this.authService.ready()) {
+      return;
+    }
+
+    if (this.user()) {
+      this.router.navigate(['/profile']);
+      return;
+    }
+
+    this.matDialog.open(AuthDialog, {
+      autoFocus: false,
+      disableClose: false,
+      panelClass: 'auth-dialog-panel',
+    });
+  }
+
+  private isPhoneOnlyUser() {
+    const user = this.user();
+    return !!user?.phoneNumber && !user.email && !user.imageUrl;
+  }
 }

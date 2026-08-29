@@ -1,0 +1,142 @@
+.auth-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 420px;
+  min-width: min(420px, calc(100vw - 48px));
+  padding: 24px;
+  position: relative;
+}
+
+.auth-dialog__close {
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  color: #334155;
+  display: inline-flex;
+  height: 44px;
+  justify-content: center;
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+  width: 44px;
+}
+
+.auth-dialog__close:hover {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #991b1b;
+  transform: translateY(-1px);
+}
+
+.auth-dialog__close:focus-visible {
+  outline: 3px solid rgba(220, 38, 38, 0.24);
+  outline-offset: 2px;
+}
+
+.auth-dialog__header {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding-right: 46px;
+}
+
+.auth-dialog__header h2 {
+  color: #111827;
+  font-size: 1.35rem;
+  font-weight: 850;
+  margin: 0;
+}
+
+.auth-dialog__header p {
+  color: #64748b;
+  font-size: 0.92rem;
+  margin: 4px 0 0;
+}
+
+.auth-dialog__header mat-icon {
+  color: #ef4444;
+  font-size: 36px;
+  height: 36px;
+  width: 36px;
+}
+
+.auth-dialog__google,
+.auth-dialog__form button {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+  justify-content: center;
+  min-height: 44px;
+}
+
+.auth-dialog__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-dialog__divider {
+  align-items: center;
+  color: #64748b;
+  display: flex;
+  font-size: 0.82rem;
+  gap: 12px;
+}
+
+.auth-dialog__divider::before,
+.auth-dialog__divider::after {
+  background: #e5e7eb;
+  content: '';
+  flex: 1;
+  height: 1px;
+}
+
+.auth-dialog__notice {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  color: #9a3412;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  padding: 10px 12px;
+}
+
+.auth-dialog__error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #b91c1c;
+  font-size: 0.9rem;
+  margin: 0;
+  padding: 10px 12px;
+}
+
+.auth-dialog__recaptcha {
+  min-height: 1px;
+}
+
+@media (max-width: 520px) {
+  .auth-dialog {
+    min-width: calc(100vw - 32px);
+    padding: 20px;
+  }
+
+  .auth-dialog__close {
+    height: 42px;
+    right: 10px;
+    top: 10px;
+    width: 42px;
+  }
+
+  .auth-dialog__header {
+    padding-right: 42px;
+  }
+}

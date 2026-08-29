@@ -1,8 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import {Header} from "./layout/header/header";
 import { EcommerceStore } from './ecommerce-store';
+import { AuthService } from './services/auth/auth.service';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, RouterLink, Header, MatIcon],
@@ -242,9 +243,14 @@ import { EcommerceStore } from './ecommerce-store';
 })
 export class App {
   private readonly store = inject(EcommerceStore);
+  private readonly authService = inject(AuthService);
   protected readonly showBackToTop = signal(false);
 
   constructor() {
+    effect(() => {
+      this.store.setAuthenticatedUser(this.authService.user());
+    });
+
     this.store.loadProducts();
   }
 
