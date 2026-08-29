@@ -1,15 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { MatIcon } from '@angular/material/icon';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import {Header} from "./layout/header/header";
-import { inject } from '@angular/core';
 import { EcommerceStore } from './ecommerce-store';
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, Header],
+  imports: [RouterOutlet, RouterLink, Header, MatIcon],
   template: `
    <app-header class=" z-10 relative"/>
 
-   <div class="app-shell h-[calc(100%-64px)] overflow-auto">
+   <div #appShell class="app-shell h-[calc(100%-64px)] overflow-auto" (scroll)="onAppShellScroll(appShell.scrollTop)">
     <main>
       <router-outlet />
     </main>
@@ -63,6 +63,18 @@ import { EcommerceStore } from './ecommerce-store';
         © C-TRADE. Все права защищены.
       </div>
     </footer>
+
+    @if (showBackToTop()) {
+      <button
+        type="button"
+        class="back-to-top"
+        aria-label="Наверх"
+        title="Наверх"
+        (click)="scrollToTop(appShell)"
+      >
+        <mat-icon aria-hidden="true">arrow_upward</mat-icon>
+      </button>
+    }
   </div>
   `,
   styles: [`
@@ -159,6 +171,45 @@ import { EcommerceStore } from './ecommerce-store';
       padding: 16px 24px 22px;
     }
 
+    .back-to-top {
+      align-items: center;
+      background: #dc2626;
+      border: 1px solid rgba(255, 255, 255, 0.76);
+      border-radius: 50%;
+      bottom: calc(env(safe-area-inset-bottom) + 168px);
+      box-shadow: 0 16px 34px rgba(17, 24, 39, 0.24);
+      color: #ffffff;
+      cursor: pointer;
+      display: inline-flex;
+      height: 48px;
+      justify-content: center;
+      position: fixed;
+      right: calc(env(safe-area-inset-right) + 24px);
+      transition:
+        background-color 160ms ease,
+        box-shadow 160ms ease,
+        transform 160ms ease;
+      width: 48px;
+      z-index: 1000005;
+    }
+
+    .back-to-top:hover {
+      background: #b91c1c;
+      box-shadow: 0 20px 40px rgba(17, 24, 39, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .back-to-top:focus-visible {
+      outline: 3px solid rgba(220, 38, 38, 0.32);
+      outline-offset: 3px;
+    }
+
+    .back-to-top mat-icon {
+      font-size: 24px;
+      height: 24px;
+      width: 24px;
+    }
+
     @media (max-width: 900px) {
       .site-footer__inner {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -179,13 +230,29 @@ import { EcommerceStore } from './ecommerce-store';
       .site-footer__bottom {
         padding-inline: 20px;
       }
+
+      .back-to-top {
+        bottom: calc(env(safe-area-inset-bottom) + 206px);
+        height: 48px;
+        right: calc(env(safe-area-inset-right) + 12px);
+        width: 48px;
+      }
     }
   `],
 })
 export class App {
   private readonly store = inject(EcommerceStore);
+  protected readonly showBackToTop = signal(false);
 
   constructor() {
     this.store.loadProducts();
+  }
+
+  onAppShellScroll(scrollTop: number) {
+    this.showBackToTop.set(scrollTop >= 340);
+  }
+
+  scrollToTop(appShell: HTMLElement) {
+    appShell.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }

@@ -61,13 +61,13 @@ import { CONTACT_CONFIG } from '../../config/contact.config';
 
     .whatsapp-button--floating {
       border-radius: 999px;
-      bottom: 24px;
+      bottom: calc(env(safe-area-inset-bottom) + 104px);
       box-shadow: 0 16px 34px rgba(15, 23, 42, 0.22);
-      height: 56px;
+      height: 48px;
       position: fixed;
-      right: 24px;
-      width: 56px;
-      z-index: 30;
+      right: calc(env(safe-area-inset-right) + 24px);
+      width: 48px;
+      z-index: 1000004;
     }
 
     .whatsapp-button--inline {
@@ -90,10 +90,10 @@ import { CONTACT_CONFIG } from '../../config/contact.config';
 
     @media (max-width: 640px) {
       .whatsapp-button--floating {
-        bottom: 18px;
-        height: 52px;
-        right: 18px;
-        width: 52px;
+        bottom: calc(env(safe-area-inset-bottom) + 142px);
+        height: 48px;
+        right: calc(env(safe-area-inset-right) + 12px);
+        width: 48px;
       }
     }
   `,
