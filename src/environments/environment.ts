@@ -9,4 +9,7 @@ export const environment = {
     storageBucket: 'c-trade-web.firebasestorage.app',
     measurementId: 'G-Z8KQ96J7QD',
   },
+  features: {
+    phoneAuthEnabled: false,
+  },
 };

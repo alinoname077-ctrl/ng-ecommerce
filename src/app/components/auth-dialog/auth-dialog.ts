@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatButton, MatIconButton } from '@angular/material/button';
@@ -8,6 +8,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
+import { environment } from '../../../environments/environment';
 
 type AuthAction = 'google' | 'send-code' | 'confirm-code';
 
@@ -22,7 +23,7 @@ type AuthDialogData = {
   templateUrl: './auth-dialog.html',
   styleUrl: './auth-dialog.scss',
 })
-export class AuthDialog {
+export class AuthDialog implements OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
@@ -33,6 +34,7 @@ export class AuthDialog {
   protected readonly errorMessage = signal('');
   protected readonly loadingAction = signal<AuthAction | null>(null);
   protected readonly firebaseConfigured = this.authService.isConfigured();
+  protected readonly phoneAuthEnabled = environment.features.phoneAuthEnabled;
 
   protected readonly phoneForm = this.fb.group({
     phone: ['', [Validators.required, Validators.pattern(/^\+\d{10,15}$/)]],
@@ -81,6 +83,10 @@ export class AuthDialog {
   protected close() {
     this.resetTransientState();
     this.dialogRef.close(false);
+  }
+
+  ngOnDestroy() {
+    this.resetTransientState();
   }
 
   private async runAuthAction(action: AuthAction, authCall: () => Promise<unknown>) {

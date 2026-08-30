@@ -2,8 +2,9 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+  box-sizing: border-box;
+  width: min(420px, calc(100vw - 48px));
   max-width: 420px;
-  min-width: min(420px, calc(100vw - 48px));
   padding: 24px;
   position: relative;
 }
@@ -68,13 +69,95 @@
   width: 36px;
 }
 
-.auth-dialog__google,
 .auth-dialog__form button {
   align-items: center;
   display: inline-flex;
   gap: 8px;
   justify-content: center;
   min-height: 44px;
+}
+
+.auth-dialog__google {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #747775;
+  border-radius: 4px;
+  box-shadow: none;
+  box-sizing: border-box;
+  color: #1f1f1f;
+  cursor: pointer;
+  display: grid;
+  font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  grid-template-columns: 20px minmax(0, 1fr) 20px;
+  column-gap: 10px;
+  height: auto;
+  justify-items: center;
+  letter-spacing: 0;
+  line-height: 20px;
+  min-height: 44px;
+  overflow: visible;
+  padding: 0 16px;
+  position: relative;
+  text-decoration: none;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+  width: 100%;
+}
+
+.auth-dialog__google:hover:not(:disabled) {
+  background: #f8fafd;
+  border-color: #747775;
+  box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+}
+
+.auth-dialog__google:focus-visible {
+  outline: 3px solid rgba(66, 133, 244, 0.28);
+  outline-offset: 2px;
+}
+
+.auth-dialog__google:active:not(:disabled) {
+  background: #f1f3f4;
+  box-shadow: none;
+}
+
+.auth-dialog__google:disabled {
+  background: #ffffff;
+  border-color: rgba(31, 31, 31, 0.12);
+  color: rgba(31, 31, 31, 0.38);
+  cursor: default;
+  opacity: 1;
+}
+
+.auth-dialog__google-logo {
+  display: block;
+  height: 20px;
+  justify-self: start;
+  object-fit: contain;
+  overflow: visible;
+  width: 20px;
+}
+
+.auth-dialog__google-label {
+  color: inherit;
+  display: block;
+  font: inherit;
+  line-height: 20px;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auth-dialog__google-spinner {
+  justify-self: end;
+}
+
+.auth-dialog__google-spinner ::ng-deep circle {
+  stroke: #1f1f1f;
 }
 
 .auth-dialog__form {
@@ -125,7 +208,7 @@
 
 @media (max-width: 520px) {
   .auth-dialog {
-    min-width: calc(100vw - 32px);
+    width: calc(100vw - 32px);
     padding: 20px;
   }
 

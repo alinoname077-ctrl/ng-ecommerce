@@ -20,64 +20,74 @@
 
   @if (!firebaseConfigured) {
     <div class="auth-dialog__notice" role="status">
-      Firebase Authentication пока не настроен. Заполните environment-файлы и включите Google и Phone в Firebase Console.
+      Firebase Authentication пока не настроен. Заполните environment-файлы и включите Google в Firebase Console.
     </div>
   }
 
   <button
     type="button"
-    matButton="filled"
     class="auth-dialog__google"
+    aria-label="Продолжить с Google"
     [disabled]="loading() || !firebaseConfigured"
     (click)="signInWithGoogle()"
   >
+    <img
+      src="/assets/auth/google-g-logo.svg"
+      alt=""
+      width="20"
+      height="20"
+      class="auth-dialog__google-logo"
+      aria-hidden="true"
+    />
+    <span class="auth-dialog__google-label">Продолжить с Google</span>
     @if (loading('google')) {
-      <mat-spinner diameter="18" />
-    } @else {
-      <mat-icon aria-hidden="true">account_circle</mat-icon>
+      <mat-spinner diameter="18" class="auth-dialog__google-spinner" />
     }
-    Войти через Google
   </button>
 
-  <div class="auth-dialog__divider"><span>или по SMS</span></div>
+  @if (phoneAuthEnabled) {
+    <div class="auth-dialog__divider"><span>или по SMS</span></div>
 
-  <form class="auth-dialog__form" [formGroup]="phoneForm" (ngSubmit)="sendPhoneCode()">
-    <mat-form-field appearance="outline">
-      <mat-label>Номер телефона</mat-label>
-      <input matInput type="tel" formControlName="phone" placeholder="+77081234567" autocomplete="tel" />
-    </mat-form-field>
-
-    <button type="submit" matButton [disabled]="loading() || !firebaseConfigured">
-      @if (loading('send-code')) {
-        <mat-spinner diameter="18" />
-      } @else {
-        <mat-icon aria-hidden="true">sms</mat-icon>
-      }
-      Получить код
-    </button>
-  </form>
-
-  @if (codeSent()) {
-    <form class="auth-dialog__form" [formGroup]="codeForm" (ngSubmit)="confirmPhoneCode()">
+    <form class="auth-dialog__form" [formGroup]="phoneForm" (ngSubmit)="sendPhoneCode()">
       <mat-form-field appearance="outline">
-        <mat-label>SMS-код</mat-label>
-        <input matInput type="text" inputmode="numeric" formControlName="code" autocomplete="one-time-code" />
+        <mat-label>Номер телефона</mat-label>
+        <input matInput type="tel" formControlName="phone" placeholder="+77081234567" autocomplete="tel" />
       </mat-form-field>
 
-      <button type="submit" matButton="filled" [disabled]="loading() || !firebaseConfigured">
-        @if (loading('confirm-code')) {
+      <button type="submit" matButton [disabled]="loading() || !firebaseConfigured">
+        @if (loading('send-code')) {
           <mat-spinner diameter="18" />
         } @else {
-          <mat-icon aria-hidden="true">verified</mat-icon>
+          <mat-icon aria-hidden="true">sms</mat-icon>
         }
-        Подтвердить
+        Получить код
       </button>
     </form>
+
+    @if (codeSent()) {
+      <form class="auth-dialog__form" [formGroup]="codeForm" (ngSubmit)="confirmPhoneCode()">
+        <mat-form-field appearance="outline">
+          <mat-label>SMS-код</mat-label>
+          <input matInput type="text" inputmode="numeric" formControlName="code" autocomplete="one-time-code" />
+        </mat-form-field>
+
+        <button type="submit" matButton="filled" [disabled]="loading() || !firebaseConfigured">
+          @if (loading('confirm-code')) {
+            <mat-spinner diameter="18" />
+          } @else {
+            <mat-icon aria-hidden="true">verified</mat-icon>
+          }
+          Подтвердить
+        </button>
+      </form>
+    }
   }
 
   @if (errorMessage()) {
     <p class="auth-dialog__error" role="alert">{{ errorMessage() }}</p>
   }
 
-  <div id="tawk-safe-recaptcha" class="auth-dialog__recaptcha"></div>
+  @if (phoneAuthEnabled) {
+    <div id="tawk-safe-recaptcha" class="auth-dialog__recaptcha"></div>
+  }
 </section>

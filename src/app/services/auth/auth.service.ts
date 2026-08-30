@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { InjectionToken, Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { FirebaseApp, FirebaseOptions, getApp, getApps, initializeApp } from 'firebase/app';
 import {
   Auth,
@@ -18,12 +18,38 @@ import {
 import { DeliveryAddress, User, UserOrderSummary } from '../../models/user';
 import { environment } from '../../../environments/environment';
 
+type RecaptchaFactory = (
+  auth: Auth,
+  containerOrId: string,
+  parameters: ConstructorParameters<typeof RecaptchaVerifier>[2],
+) => RecaptchaVerifier;
+
+type PhoneSignIn = typeof signInWithPhoneNumber;
+
+export const FIREBASE_RECAPTCHA_FACTORY = new InjectionToken<RecaptchaFactory>(
+  'Firebase reCAPTCHA verifier factory',
+  {
+    providedIn: 'root',
+    factory: () => (auth, containerOrId, parameters) => new RecaptchaVerifier(auth, containerOrId, parameters),
+  },
+);
+
+export const FIREBASE_PHONE_SIGN_IN = new InjectionToken<PhoneSignIn>('Firebase phone sign-in', {
+  providedIn: 'root',
+  factory: () => signInWithPhoneNumber,
+});
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly recaptchaFactory = inject(FIREBASE_RECAPTCHA_FACTORY);
+  private readonly phoneSignIn = inject(FIREBASE_PHONE_SIGN_IN);
   private readonly auth = this.isBrowser && this.hasFirebaseConfig() ? this.createAuth() : undefined;
-  private recaptchaVerifier?: RecaptchaVerifier;
+  private recaptchaVerifier: RecaptchaVerifier | null = null;
+  private recaptchaContainerId: string | null = null;
+  private recaptchaRenderPromise: Promise<unknown> | null = null;
   private confirmationResult?: ConfirmationResult;
+  private phoneCodeRequest: Promise<void> | null = null;
   private readyResolve!: () => void;
   private readonly readyPromise = new Promise<void>((resolve) => {
     this.readyResolve = resolve;
@@ -61,6 +87,18 @@ export class AuthService {
   }
 
   async sendPhoneCode(phoneNumber: string, containerId: string) {
+    if (this.phoneCodeRequest) {
+      return this.phoneCodeRequest;
+    }
+
+    this.phoneCodeRequest = this.sendPhoneCodeInternal(phoneNumber, containerId).finally(() => {
+      this.phoneCodeRequest = null;
+    });
+
+    return this.phoneCodeRequest;
+  }
+
+  private async sendPhoneCodeInternal(phoneNumber: string, containerId: string) {
     const auth = this.requireAuth();
     const normalizedPhone = phoneNumber.replace(/[\s()-]/g, '');
 
@@ -68,13 +106,14 @@ export class AuthService {
       throw new Error('Номер введён неправильно. Укажите номер в международном формате, например +77081234567.');
     }
 
-    await setPersistence(auth, browserLocalPersistence);
-    this.clearRecaptcha();
-    this.recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
-      size: 'invisible',
-    });
-    await this.recaptchaVerifier.render();
-    this.confirmationResult = await signInWithPhoneNumber(auth, normalizedPhone, this.recaptchaVerifier);
+    try {
+      await setPersistence(auth, browserLocalPersistence);
+      const verifier = await this.getRecaptchaVerifier(auth, containerId);
+      this.confirmationResult = await this.phoneSignIn(auth, normalizedPhone, verifier);
+    } catch (error) {
+      this.clearRecaptcha();
+      throw error;
+    }
   }
 
   async confirmPhoneCode(code: string) {
@@ -203,6 +242,49 @@ export class AuthService {
     return getApps().length ? getApp() : initializeApp(config);
   }
 
+  private async getRecaptchaVerifier(auth: Auth, containerId: string) {
+    await this.waitForRecaptchaContainer(containerId);
+
+    if (this.recaptchaVerifier && this.recaptchaContainerId === containerId) {
+      await this.recaptchaRenderPromise;
+      return this.recaptchaVerifier;
+    }
+
+    this.clearRecaptcha();
+
+    const verifier = this.recaptchaFactory(auth, containerId, {
+      size: 'invisible',
+    });
+
+    this.recaptchaVerifier = verifier;
+    this.recaptchaContainerId = containerId;
+    this.recaptchaRenderPromise = verifier.render();
+
+    try {
+      await this.recaptchaRenderPromise;
+      return verifier;
+    } catch (error) {
+      this.clearRecaptcha();
+      throw error;
+    }
+  }
+
+  private async waitForRecaptchaContainer(containerId: string) {
+    if (!this.isBrowser) {
+      return;
+    }
+
+    for (let attempt = 0; attempt < 20; attempt++) {
+      if (document.getElementById(containerId)) {
+        return;
+      }
+
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    }
+
+    throw new Error('Контейнер reCAPTCHA не найден. Закройте окно входа и попробуйте ещё раз.');
+  }
+
   private hasFirebaseConfig() {
     const { apiKey, authDomain, projectId, appId, messagingSenderId } = environment.firebase;
     return [apiKey, authDomain, projectId, appId, messagingSenderId].every(
@@ -254,7 +336,22 @@ export class AuthService {
   }
 
   private clearRecaptcha() {
-    this.recaptchaVerifier?.clear();
-    this.recaptchaVerifier = undefined;
+    const containerId = this.recaptchaContainerId;
+
+    try {
+      this.recaptchaVerifier?.clear();
+    } catch {
+      // Firebase may already have removed the widget during dialog teardown.
+    }
+
+    this.recaptchaVerifier = null;
+    this.recaptchaContainerId = null;
+    this.recaptchaRenderPromise = null;
+
+    if (!this.isBrowser || !containerId) {
+      return;
+    }
+
+    document.getElementById(containerId)?.replaceChildren();
   }
 }
