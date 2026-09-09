@@ -5,14 +5,14 @@ import { map, shareReplay } from 'rxjs/operators';
 
 import { Product } from '../models/product';
 
+let productsRequest$: Observable<Product[]> | undefined;
+
 @Injectable({
   providedIn: 'root',
 })
 export class ProductService {
   private readonly http = inject(HttpClient);
-  private readonly products$ = this.http.get<Product[]>('/data/products.json', { transferCache: false }).pipe(
-    shareReplay({ bufferSize: 1, refCount: false }),
-  );
+  private readonly products$ = this.getProductsRequest();
   private readonly productsBySlug$ = this.products$.pipe(
     map((products) => new Map(products.map((product) => [product.slug, product]))),
     shareReplay({ bufferSize: 1, refCount: false }),
@@ -23,6 +23,14 @@ export class ProductService {
   );
 
   constructor() {}
+
+  private getProductsRequest(): Observable<Product[]> {
+    productsRequest$ ??= this.http
+      .get<Product[]>('/data/products.json', { transferCache: false })
+      .pipe(shareReplay({ bufferSize: 1, refCount: false }));
+
+    return productsRequest$;
+  }
 
   /**
    * Получить все товары

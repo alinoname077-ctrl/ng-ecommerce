@@ -27,6 +27,7 @@ interface Product {
 
 let productsCache: Product[] | undefined;
 let productSlugCache: Set<string> | undefined;
+let categorySlugCache: Set<string> | undefined;
 
 async function getProducts(): Promise<Product[]> {
   if (productsCache) {
@@ -52,6 +53,87 @@ async function getProductSlugs(): Promise<Set<string>> {
   productSlugCache = new Set(products.map((product) => product.slug).filter(Boolean));
 
   return productSlugCache;
+}
+
+async function getCategorySlugs(): Promise<Set<string>> {
+  if (categorySlugCache) {
+    return categorySlugCache;
+  }
+
+  const products = await getProducts();
+  categorySlugCache = new Set(
+    products
+      .map((product) => product.categorySlug)
+      .filter((categorySlug): categorySlug is string => !!categorySlug),
+  );
+
+  return categorySlugCache;
+}
+
+function sendSmallNotFound(res: express.Response) {
+  res
+    .status(404)
+    .type('text/plain')
+    .set({
+      'Cache-Control': 'public, max-age=300, s-maxage=300',
+      'X-Robots-Tag': 'noindex',
+    })
+    .send('404 Not Found\n');
+}
+
+function isStaticAssetPath(path: string): boolean {
+  return /\.[a-z0-9][a-z0-9-]{0,15}$/i.test(path);
+}
+
+async function isKnownSsrPath(path: string): Promise<boolean> {
+  if (
+    path === '/' ||
+    path === '/catalog' ||
+    path === '/brands/ridan' ||
+    path === '/wishlist' ||
+    path === '/cart' ||
+    path === '/checkout' ||
+    path === '/profile' ||
+    path === '/payment/kaspi' ||
+    path === '/order-success'
+  ) {
+    return true;
+  }
+
+  const productMatch = path.match(/^\/product\/([^/?#]+)$/);
+
+  if (productMatch) {
+    return (await getProductSlugs()).has(decodeURIComponent(productMatch[1]));
+  }
+
+  const categoryMatch = path.match(/^\/products\/([^/?#]+)$/);
+
+  if (categoryMatch) {
+    return categoryMatch[1] === 'all' || (await getCategorySlugs()).has(decodeURIComponent(categoryMatch[1]));
+  }
+
+  return false;
+}
+
+function isPublicCacheableSsrPath(path: string): boolean {
+  return (
+    path === '/' ||
+    path === '/catalog' ||
+    path === '/brands/ridan' ||
+    /^\/product\/[^/?#]+$/.test(path) ||
+    /^\/products\/[^/?#]+$/.test(path)
+  );
+}
+
+function withResponseHeader(response: Response, key: string, value: string): Response {
+  const headers = new Headers(response.headers);
+  headers.set(key, value);
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 }
 const primaryOrigin = 'https://c-trade.kz';
 
@@ -121,15 +203,18 @@ app.use((req, res, next) => {
 app.get('/robots.txt', (req, res) => {
   const origin = getPublicOrigin(req);
 
-  res.type('text/plain').send(
-    [
-      'User-agent: *',
-      'Allow: /',
-      '',
-      `Sitemap: ${origin}/sitemap.xml`,
-      '',
-    ].join('\n'),
-  );
+  res
+    .type('text/plain')
+    .set('Cache-Control', 'public, max-age=300, s-maxage=3600')
+    .send(
+      [
+        'User-agent: *',
+        'Allow: /',
+        '',
+        `Sitemap: ${origin}/sitemap.xml`,
+        '',
+      ].join('\n'),
+    );
 });
 
 app.get('/sitemap.xml', async (req, res) => {
@@ -149,7 +234,7 @@ app.get('/sitemap.xml', async (req, res) => {
     ),
   ];
 
-  res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>
+  res.type('application/xml').set('Cache-Control', 'public, max-age=300, s-maxage=3600').send(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls
   .map(
@@ -166,28 +251,48 @@ app.use(
   express.static(browserDistFolder, {
     index: false,
     maxAge: '1y',
+    setHeaders: (res, filePath) => {
+      const normalizedPath = filePath.replace(/\\/g, '/');
+
+      if (normalizedPath.endsWith('/data/products.json')) {
+        res.setHeader(
+          'Cache-Control',
+          'public, max-age=60, s-maxage=3600, stale-while-revalidate=86400',
+        );
+      }
+    },
   })
 );
 
 app.use(async (req, res, next) => {
   try {
-    const productSlug = getProductSlugFromPath(req.path);
-    const productExists = productSlug ? (await getProductSlugs()).has(productSlug) : true;
+    if (req.path.startsWith('/api/')) {
+      sendSmallNotFound(res);
+      return;
+    }
+
+    if (isStaticAssetPath(req.path)) {
+      sendSmallNotFound(res);
+      return;
+    }
+
+    if (!(await isKnownSsrPath(req.path))) {
+      sendSmallNotFound(res);
+      return;
+    }
+
     const response = await angularApp.handle(req);
 
     if (response) {
-      if (!productExists) {
-        const body = await response.text();
-        const notFoundResponse = new Response(body, {
-          status: 404,
-          statusText: 'Not Found',
-          headers: response.headers,
-        });
+      const finalResponse = isPublicCacheableSsrPath(req.path)
+        ? withResponseHeader(
+            response,
+            'Cache-Control',
+            'public, max-age=0, s-maxage=86400, stale-while-revalidate=604800',
+          )
+        : withResponseHeader(response, 'Cache-Control', 'private, no-store');
 
-        writeResponseToNodeResponse(notFoundResponse, res);
-      } else {
-        writeResponseToNodeResponse(response, res);
-      }
+      writeResponseToNodeResponse(finalResponse, res);
     } else {
       next();
     }
